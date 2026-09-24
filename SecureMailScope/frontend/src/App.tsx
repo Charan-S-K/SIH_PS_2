@@ -1,0 +1,110 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Navbar } from './components/Navbar';
+import { HealthCard } from './components/HealthCard';
+import { checkLiveness, checkReadiness, fetchSystemInfo, HealthResponse, ReadinessResponse, InfoResponse } from './services/api';
+import { ShieldCheck, Layers, GitBranch, HardDrive } from 'lucide-react';
+
+export const App: React.FC = () => {
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
+  const [info, setInfo] = useState<InfoResponse | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const loadStatus = useCallback(async () => {
+    setLoading(true);
+    const [livenessRes, readinessRes, infoRes] = await Promise.all([
+      checkLiveness(),
+      checkReadiness(),
+      fetchSystemInfo(),
+    ]);
+
+    setHealth(livenessRes.data);
+    setLatencyMs(livenessRes.latencyMs);
+    setError(livenessRes.error);
+    setReadiness(readinessRes.data);
+    setInfo(infoRes.data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadStatus();
+    // Auto probe every 30 seconds
+    const interval = setInterval(loadStatus, 30000);
+    return () => clearInterval(interval);
+  }, [loadStatus]);
+
+  return (
+    <div className="min-h-screen bg-[#0b0f19] flex flex-col font-sans text-slate-100">
+      <Navbar />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/40 border border-blue-900/30 p-8 shadow-2xl">
+          <div className="relative z-10 max-w-3xl">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-900/40 border border-blue-700/50 text-blue-300 text-xs font-medium mb-4">
+              <ShieldCheck className="h-4 w-4" />
+              <span>SIH 2024 / SIH26159 Project Posture Engine</span>
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Cryptographic Security Posture Assessment
+            </h1>
+            <p className="mt-3 text-base text-slate-300 leading-relaxed">
+              Passive email cryptographic forensics platform analyzing SMTP, IMAP, and POP3 network traffic.
+              Stage 00 Foundation establishes the FastAPI backend, React UI, PostgreSQL connection, and health probes.
+            </p>
+          </div>
+        </div>
+
+        {/* Live Connectivity Card */}
+        <HealthCard
+          health={health}
+          readiness={readiness}
+          info={info}
+          latencyMs={latencyMs}
+          error={error}
+          loading={loading}
+          onRefresh={loadStatus}
+        />
+
+        {/* Architectural Principles & Stage Roadmap Preview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-5 rounded-xl bg-[#111827] border border-slate-800">
+            <div className="p-2.5 w-fit rounded-lg bg-blue-950 text-blue-400 mb-3 border border-blue-800/40">
+              <Layers className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-slate-200 text-sm">Evidence-First Forensic Model</h3>
+            <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+              Architecture flow: Facts → Rules → Evidence → ML → Prioritization → Recommendation. No fabricated facts; explicit UNKNOWN support.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-[#111827] border border-slate-800">
+            <div className="p-2.5 w-fit rounded-lg bg-emerald-950 text-emerald-400 mb-3 border border-emerald-800/40">
+              <GitBranch className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-slate-200 text-sm">Strict Stage Lifecycle</h3>
+            <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+              Human-gated development: Implement → Review-only Check → User Validation → Manual Git Approval. 28 modular milestones.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-[#111827] border border-slate-800">
+            <div className="p-2.5 w-fit rounded-lg bg-purple-950 text-purple-400 mb-3 border border-purple-800/40">
+              <HardDrive className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-slate-200 text-sm">Free & Local Deployment</h3>
+            <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+              100% locally runnable stack: FastAPI, PostgreSQL, TShark/PyShark, React/Vite, Scikit-Learn, Docker Compose. Zero paid API dependencies.
+            </p>
+          </div>
+        </div>
+      </main>
+
+      <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
+        SecureMailScope &bull; Stage 00 Foundation &bull; Free & Open-Source Cybersecurity Posture Platform
+      </footer>
+    </div>
+  );
+};
