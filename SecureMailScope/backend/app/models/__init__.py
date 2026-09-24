@@ -7,6 +7,7 @@ from app.models.packet import PacketMetadata
 from app.models.protocol import ProtocolIdentification
 from app.models.session import TcpSession
 from app.models.email_analysis import EmailSessionAnalysis
+from app.models.starttls import StarttlsAnalysis
 
 __all__ = [
     "Base",
@@ -17,7 +18,9 @@ __all__ = [
     "ProtocolIdentification",
     "TcpSession",
     "EmailSessionAnalysis",
+    "StarttlsAnalysis",
 ]
+
 
 
 

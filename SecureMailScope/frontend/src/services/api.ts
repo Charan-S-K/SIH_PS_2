@@ -560,5 +560,97 @@ export async function analyzeJobEmailProtocols(jobId: string): Promise<{ data: E
   }
 }
 
+export interface StarttlsFinding {
+  code: string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+  message: string;
+  evidence_frame?: number | null;
+}
+
+export interface StarttlsAnalysisItem {
+  id: string;
+  job_id: string;
+  tcp_session_id?: string | null;
+  tcp_stream: number;
+  protocol: string;
+  client_ip?: string | null;
+  server_ip?: string | null;
+  client_port?: number | null;
+  server_port?: number | null;
+  advertised: boolean;
+  advertised_frame?: number | null;
+  advertised_command?: string | null;
+  requested: boolean;
+  requested_frame?: number | null;
+  requested_command?: string | null;
+  accepted: boolean;
+  response_frame?: number | null;
+  response_code?: string | null;
+  response_text?: string | null;
+  upgrade_status: string;
+  tls_record_detected: boolean;
+  tls_start_frame?: number | null;
+  cleartext_auth_observed: boolean;
+  cleartext_auth_frame?: number | null;
+  cleartext_auth_command?: string | null;
+  findings?: StarttlsFinding[] | null;
+  created_at?: string | null;
+}
+
+export interface StarttlsAnalysisListResponse {
+  job_id: string;
+  total_streams: number;
+  upgraded_count: number;
+  downgrade_risk_count: number;
+  critical_findings_count: number;
+  analyses: StarttlsAnalysisItem[];
+}
+
+export async function fetchJobStarttls(jobId: string): Promise<{ data: StarttlsAnalysisListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/starttls`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch STARTTLS analysis` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch STARTTLS analysis' };
+  }
+}
+
+export async function fetchStreamStarttls(jobId: string, streamId: number): Promise<{ data: StarttlsAnalysisItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/starttls/${streamId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Stream STARTTLS analysis not found` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch stream STARTTLS analysis' };
+  }
+}
+
+export async function analyzeJobStarttls(jobId: string): Promise<{ data: StarttlsAnalysisListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/analyze-starttls`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to trigger STARTTLS analysis` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to trigger STARTTLS analysis' };
+  }
+}
+
 
 

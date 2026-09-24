@@ -15,15 +15,18 @@ from app.models.packet import PacketMetadata
 from app.models.protocol import ProtocolIdentification
 from app.models.session import TcpSession
 from app.models.email_analysis import EmailSessionAnalysis
+from app.models.starttls import StarttlsAnalysis
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
 from app.schemas.session import TcpSessionResponse, TcpSessionListResponse
 from app.schemas.email_analysis import EmailSessionAnalysisResponse, EmailSessionAnalysisListResponse
+from app.schemas.starttls import StarttlsAnalysisResponse, StarttlsAnalysisListResponse
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
 from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
+from app.services.starttls_analyzer import StarttlsAnalyzer
 
 
 logger = logging.getLogger(__name__)
@@ -453,6 +456,109 @@ def analyze_job_email_protocols(job_id: str, db: Session = Depends(get_db)) -> E
         job_id=job.id,
         total_email_sessions=len(sessions),
         sessions=[EmailSessionAnalysisResponse.model_validate(s) for s in sessions]
+    )
+
+
+@router.get(
+    "/{job_id}/starttls",
+    response_model=StarttlsAnalysisListResponse,
+    summary="List STARTTLS and opportunistic TLS analyses for a job",
+    description="Retrieves STARTTLS/STLS upgrade negotiation results, downgrade risk alerts, and cleartext credential findings across all streams."
+)
+def list_job_starttls(job_id: str, db: Session = Depends(get_db)) -> StarttlsAnalysisListResponse:
+    """List all opportunistic TLS / STARTTLS analyses for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    analyses = (
+        db.query(StarttlsAnalysis)
+        .filter(StarttlsAnalysis.job_id == job_id)
+        .order_by(StarttlsAnalysis.tcp_stream.asc())
+        .all()
+    )
+
+    upgraded_count = sum(1 for a in analyses if a.upgrade_status in ("UPGRADED_SUCCESS", "DIRECT_TLS"))
+    downgrade_risk_count = sum(1 for a in analyses if a.upgrade_status in ("NOT_REQUESTED_IGNORED", "UPGRADE_REJECTED", "CLEARTEXT_AUTH_AFTER_ADVERTISED"))
+    critical_findings_count = sum(
+        1 for a in analyses if any(f.get("severity") == "CRITICAL" for f in (a.findings or []))
+    )
+
+    return StarttlsAnalysisListResponse(
+        job_id=job.id,
+        total_streams=len(analyses),
+        upgraded_count=upgraded_count,
+        downgrade_risk_count=downgrade_risk_count,
+        critical_findings_count=critical_findings_count,
+        analyses=[StarttlsAnalysisResponse.model_validate(a) for a in analyses]
+    )
+
+
+@router.get(
+    "/{job_id}/starttls/{tcp_stream}",
+    response_model=StarttlsAnalysisResponse,
+    summary="Get STARTTLS analysis for a specific stream",
+    description="Returns detailed STARTTLS/STLS negotiation status, evidence frames, response codes, and security findings for a single stream."
+)
+def get_stream_starttls(job_id: str, tcp_stream: int, db: Session = Depends(get_db)) -> StarttlsAnalysisResponse:
+    """Retrieve STARTTLS analysis for a specific stream."""
+    analysis = db.query(StarttlsAnalysis).filter(
+        StarttlsAnalysis.job_id == job_id,
+        StarttlsAnalysis.tcp_stream == tcp_stream
+    ).first()
+    if not analysis:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"STARTTLS analysis for stream {tcp_stream} in job '{job_id}' not found"
+        )
+    return StarttlsAnalysisResponse.model_validate(analysis)
+
+
+@router.post(
+    "/{job_id}/analyze-starttls",
+    response_model=StarttlsAnalysisListResponse,
+    summary="Run or refresh STARTTLS analysis for a job",
+    description="Executes forensic STARTTLS inspection, downgrade detection, and TLS record verification across all streams."
+)
+def analyze_job_starttls(job_id: str, db: Session = Depends(get_db)) -> StarttlsAnalysisListResponse:
+    """Execute or refresh STARTTLS analysis for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    analyzer = StarttlsAnalyzer(db)
+    try:
+        analyses = analyzer.analyze_job_starttls(job_id)
+    except ValueError as val_err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(val_err)
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"STARTTLS analysis failed: {str(exc)}"
+        )
+
+    upgraded_count = sum(1 for a in analyses if a.upgrade_status in ("UPGRADED_SUCCESS", "DIRECT_TLS"))
+    downgrade_risk_count = sum(1 for a in analyses if a.upgrade_status in ("NOT_REQUESTED_IGNORED", "UPGRADE_REJECTED", "CLEARTEXT_AUTH_AFTER_ADVERTISED"))
+    critical_findings_count = sum(
+        1 for a in analyses if any(f.get("severity") == "CRITICAL" for f in (a.findings or []))
+    )
+
+    return StarttlsAnalysisListResponse(
+        job_id=job.id,
+        total_streams=len(analyses),
+        upgraded_count=upgraded_count,
+        downgrade_risk_count=downgrade_risk_count,
+        critical_findings_count=critical_findings_count,
+        analyses=[StarttlsAnalysisResponse.model_validate(a) for a in analyses]
     )
 
 

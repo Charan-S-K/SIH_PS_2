@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnalysisJob, processJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck, Lock } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
@@ -10,6 +10,7 @@ interface JobsTableProps {
   onViewProtocols?: (job: AnalysisJob) => void;
   onViewSessions?: (job: AnalysisJob) => void;
   onViewEmailAnalysis?: (job: AnalysisJob) => void;
+  onViewStarttls?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -20,6 +21,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onViewProtocols,
   onViewSessions,
   onViewEmailAnalysis,
+  onViewStarttls,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -184,6 +186,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <MailCheck className="h-3 w-3 text-cyan-400" />
                             <span>Email Analysis</span>
+                          </button>
+                        )}
+                        {onViewStarttls && (
+                          <button
+                            onClick={() => onViewStarttls(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/60 text-[11px] font-medium transition-colors"
+                            title="View STARTTLS Negotiation & Downgrade Risk Posture"
+                          >
+                            <Lock className="h-3 w-3 text-emerald-400" />
+                            <span>STARTTLS</span>
                           </button>
                         )}
                         <button

@@ -7,6 +7,7 @@ import { PacketsModal } from './components/PacketsModal';
 import { ProtocolsModal } from './components/ProtocolsModal';
 import { SessionsModal } from './components/SessionsModal';
 import { EmailAnalysisModal } from './components/EmailAnalysisModal';
+import { StarttlsModal } from './components/StarttlsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
   const [selectedJobForProtocols, setSelectedJobForProtocols] = useState<AnalysisJob | null>(null);
   const [selectedJobForSessions, setSelectedJobForSessions] = useState<AnalysisJob | null>(null);
   const [selectedJobForEmailAnalysis, setSelectedJobForEmailAnalysis] = useState<AnalysisJob | null>(null);
+  const [selectedJobForStarttls, setSelectedJobForStarttls] = useState<AnalysisJob | null>(null);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export const App: React.FC = () => {
             </h1>
             <p className="mt-3 text-base text-slate-300 leading-relaxed">
               Passive email cryptographic forensics platform analyzing SMTP, IMAP, and POP3 network traffic.
-              Stage 03 adds behavioral email protocol identification, conversational flow analysis, TLS handshake inspection, and forensic evidence tracking.
+              Stage 06 adds opportunistic TLS (STARTTLS / STLS) upgrade negotiation analysis, TLS record layer transition detection, downgrade/stripping vulnerability alerting, and suspicious cleartext authentication detection.
             </p>
           </div>
         </div>
@@ -118,6 +120,7 @@ export const App: React.FC = () => {
           onViewProtocols={(job) => setSelectedJobForProtocols(job)}
           onViewSessions={(job) => setSelectedJobForSessions(job)}
           onViewEmailAnalysis={(job) => setSelectedJobForEmailAnalysis(job)}
+          onViewStarttls={(job) => setSelectedJobForStarttls(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -209,10 +212,25 @@ export const App: React.FC = () => {
             }}
           />
         )}
+
+        {/* STARTTLS Posture & Downgrade Risk Modal */}
+        {selectedJobForStarttls && (
+          <StarttlsModal
+            jobId={selectedJobForStarttls.id}
+            filename={selectedJobForStarttls.pcap_file?.original_filename || 'capture.pcap'}
+            onClose={() => setSelectedJobForStarttls(null)}
+            onInspectFrames={(streamId) => {
+              const job = selectedJobForStarttls;
+              setSelectedJobForStarttls(null);
+              setTargetStreamId(streamId);
+              setSelectedJob(job);
+            }}
+          />
+        )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 05 Email Protocol Analysis &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 06 STARTTLS Analysis &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

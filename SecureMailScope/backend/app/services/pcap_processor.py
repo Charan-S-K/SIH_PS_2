@@ -320,6 +320,14 @@ class PcapProcessor:
         except Exception as email_err:
             logger.warning("Email protocol analysis encountered a non-fatal issue for job %s: %s", job.id, email_err)
 
+        # Stage 06: Analyze Opportunistic TLS (STARTTLS / STLS) & Downgrade Risk
+        try:
+            from app.services.starttls_analyzer import StarttlsAnalyzer
+            starttls_analyzer = StarttlsAnalyzer(self.db)
+            starttls_analyzer.analyze_job_starttls(job.id)
+        except Exception as starttls_err:
+            logger.warning("STARTTLS analysis encountered a non-fatal issue for job %s: %s", job.id, starttls_err)
+
 
         # Update AnalysisJob with statistics and mark COMPLETED
         duration = 0.0
