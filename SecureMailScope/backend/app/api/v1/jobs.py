@@ -4,7 +4,7 @@ Analysis jobs querying, processing, and packet metadata inspection endpoints.
 
 import json
 import logging
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
@@ -17,6 +17,7 @@ from app.models.session import TcpSession
 from app.models.email_analysis import EmailSessionAnalysis
 from app.models.starttls import StarttlsAnalysis
 from app.models.tls_handshake import TlsHandshakeAnalysis
+from app.models.certificate import X509CertificateAnalysis
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
@@ -24,12 +25,14 @@ from app.schemas.session import TcpSessionResponse, TcpSessionListResponse
 from app.schemas.email_analysis import EmailSessionAnalysisResponse, EmailSessionAnalysisListResponse
 from app.schemas.starttls import StarttlsAnalysisResponse, StarttlsAnalysisListResponse
 from app.schemas.tls_handshake import TlsHandshakeAnalysisResponse, TlsHandshakeAnalysisListResponse
+from app.schemas.certificate import X509CertificateResponse, X509CertificateListResponse
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
 from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
 from app.services.starttls_analyzer import StarttlsAnalyzer
 from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
+from app.services.x509_analyzer import X509Analyzer
 
 
 logger = logging.getLogger(__name__)
@@ -669,6 +672,144 @@ def analyze_job_tls_handshakes(job_id: str, db: Session = Depends(get_db)) -> Tl
         legacy_tls_count=legacy_tls_count,
         alert_count=alert_count,
         analyses=[TlsHandshakeAnalysisResponse.model_validate(a) for a in analyses]
+    )
+
+
+# ---------------------------------------------------------
+# Stage 08: X.509 Certificate Forensic Analysis Endpoints
+# ---------------------------------------------------------
+
+@router.get(
+    "/{job_id}/certificates",
+    response_model=X509CertificateListResponse,
+    summary="List all X.509 Certificates for a job",
+    description="Returns parsed cryptographic X.509 certificate properties, temporal validity, SANs, public key parameters, and chain structure."
+)
+def get_job_certificates(job_id: str, db: Session = Depends(get_db)) -> X509CertificateListResponse:
+    """Retrieve all X.509 certificate analyses for a specific job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    certs = (
+        db.query(X509CertificateAnalysis)
+        .filter(X509CertificateAnalysis.job_id == job_id)
+        .order_by(X509CertificateAnalysis.tcp_stream, X509CertificateAnalysis.chain_index)
+        .all()
+    )
+
+    valid_count = sum(1 for c in certs if c.validity_status == "VALID")
+    expired_count = sum(1 for c in certs if c.validity_status == "EXPIRED")
+    not_yet_valid_count = sum(1 for c in certs if c.validity_status == "NOT_YET_VALID")
+    self_signed_count = sum(1 for c in certs if c.is_self_signed)
+    weak_keys_count = sum(
+        1 for c in certs if c.public_key_algorithm == "RSA" and c.key_size_bits and c.key_size_bits < 2048
+    )
+    weak_sigs_count = sum(
+        1 for c in certs if c.signature_digest in ("SHA-1", "MD5")
+    )
+
+    return X509CertificateListResponse(
+        job_id=job.id,
+        total_certificates=len(certs),
+        valid_certificates=valid_count,
+        expired_certificates=expired_count,
+        not_yet_valid_certificates=not_yet_valid_count,
+        self_signed_certificates=self_signed_count,
+        weak_keys_count=weak_keys_count,
+        weak_signatures_count=weak_sigs_count,
+        certificates=[X509CertificateResponse.model_validate(c) for c in certs]
+    )
+
+
+@router.get(
+    "/{job_id}/certificates/{tcp_stream}",
+    response_model=List[X509CertificateResponse],
+    summary="Get X.509 Certificates for a specific stream",
+    description="Returns ordered certificate chain (leaf to root) for a single TCP stream."
+)
+def get_stream_certificates(job_id: str, tcp_stream: int, db: Session = Depends(get_db)) -> List[X509CertificateResponse]:
+    """Retrieve X.509 certificate chain for a specific stream."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    certs = (
+        db.query(X509CertificateAnalysis)
+        .filter(
+            X509CertificateAnalysis.job_id == job_id,
+            X509CertificateAnalysis.tcp_stream == tcp_stream
+        )
+        .order_by(X509CertificateAnalysis.chain_index)
+        .all()
+    )
+
+    if not certs:
+        # Check if stream has a TLS handshake
+        hs = db.query(TlsHandshakeAnalysis).filter(
+            TlsHandshakeAnalysis.job_id == job_id,
+            TlsHandshakeAnalysis.tcp_stream == tcp_stream
+        ).first()
+        if not hs:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Stream {tcp_stream} in job '{job_id}' not found or had no TLS handshake"
+            )
+        return []
+
+    return [X509CertificateResponse.model_validate(c) for c in certs]
+
+
+@router.post(
+    "/{job_id}/analyze-certificates",
+    response_model=X509CertificateListResponse,
+    summary="Run or refresh X.509 Certificate analysis for a job",
+    description="Extracts and evaluates raw certificates from observable TLS handshakes across all candidate streams."
+)
+def analyze_job_certificates(job_id: str, db: Session = Depends(get_db)) -> X509CertificateListResponse:
+    """Execute or refresh X.509 Certificate analysis for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    try:
+        certs = X509Analyzer.analyze_job_certificates(db, job_id)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"X.509 Certificate analysis failed: {str(exc)}"
+        )
+
+    valid_count = sum(1 for c in certs if c.validity_status == "VALID")
+    expired_count = sum(1 for c in certs if c.validity_status == "EXPIRED")
+    not_yet_valid_count = sum(1 for c in certs if c.validity_status == "NOT_YET_VALID")
+    self_signed_count = sum(1 for c in certs if c.is_self_signed)
+    weak_keys_count = sum(
+        1 for c in certs if c.public_key_algorithm == "RSA" and c.key_size_bits and c.key_size_bits < 2048
+    )
+    weak_sigs_count = sum(
+        1 for c in certs if c.signature_digest in ("SHA-1", "MD5")
+    )
+
+    return X509CertificateListResponse(
+        job_id=job.id,
+        total_certificates=len(certs),
+        valid_certificates=valid_count,
+        expired_certificates=expired_count,
+        not_yet_valid_certificates=not_yet_valid_count,
+        self_signed_certificates=self_signed_count,
+        weak_keys_count=weak_keys_count,
+        weak_signatures_count=weak_sigs_count,
+        certificates=[X509CertificateResponse.model_validate(c) for c in certs]
     )
 
 

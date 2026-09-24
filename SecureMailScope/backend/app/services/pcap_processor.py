@@ -336,6 +336,13 @@ class PcapProcessor:
         except Exception as tls_err:
             logger.warning("TLS handshake analysis encountered a non-fatal issue for job %s: %s", job.id, tls_err)
 
+        # Stage 08: Forensic X.509 Certificate Analysis
+        try:
+            from app.services.x509_analyzer import X509Analyzer
+            X509Analyzer.analyze_job_certificates(self.db, job.id)
+        except Exception as cert_err:
+            logger.warning("X.509 Certificate analysis encountered a non-fatal issue for job %s: %s", job.id, cert_err)
+
 
         # Update AnalysisJob with statistics and mark COMPLETED
         duration = 0.0

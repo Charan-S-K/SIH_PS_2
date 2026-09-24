@@ -69,5 +69,6 @@ class TcpSession(Base, TimestampMixin):
     email_analysis = relationship("EmailSessionAnalysis", back_populates="tcp_session", uselist=False, cascade="all, delete-orphan")
     starttls_analysis = relationship("StarttlsAnalysis", back_populates="tcp_session", uselist=False, cascade="all, delete-orphan")
     tls_handshake = relationship("TlsHandshakeAnalysis", back_populates="tcp_session", uselist=False, cascade="all, delete-orphan")
+    certificates = relationship("X509CertificateAnalysis", back_populates="session", cascade="all, delete-orphan")
 
 

@@ -9,6 +9,7 @@ import { SessionsModal } from './components/SessionsModal';
 import { EmailAnalysisModal } from './components/EmailAnalysisModal';
 import { StarttlsModal } from './components/StarttlsModal';
 import { TlsHandshakeModal } from './components/TlsHandshakeModal';
+import { CertificateModal } from './components/CertificateModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
   const [selectedJobForEmailAnalysis, setSelectedJobForEmailAnalysis] = useState<AnalysisJob | null>(null);
   const [selectedJobForStarttls, setSelectedJobForStarttls] = useState<AnalysisJob | null>(null);
   const [selectedJobForTlsHandshakes, setSelectedJobForTlsHandshakes] = useState<AnalysisJob | null>(null);
+  const [selectedJobForCertificates, setSelectedJobForCertificates] = useState<AnalysisJob | null>(null);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +126,7 @@ export const App: React.FC = () => {
           onViewEmailAnalysis={(job) => setSelectedJobForEmailAnalysis(job)}
           onViewStarttls={(job) => setSelectedJobForStarttls(job)}
           onViewTlsHandshakes={(job) => setSelectedJobForTlsHandshakes(job)}
+          onViewCertificates={(job) => setSelectedJobForCertificates(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -245,10 +248,25 @@ export const App: React.FC = () => {
             }}
           />
         )}
+
+        {/* X.509 Certificate Forensic Analysis Modal */}
+        {selectedJobForCertificates && (
+          <CertificateModal
+            jobId={selectedJobForCertificates.id}
+            isOpen={true}
+            onClose={() => setSelectedJobForCertificates(null)}
+            onInspectPackets={(streamId) => {
+              const job = selectedJobForCertificates;
+              setSelectedJobForCertificates(null);
+              setTargetStreamId(streamId);
+              setSelectedJob(job);
+            }}
+          />
+        )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 07 TLS Handshake Analysis &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 08 X.509 Certificate Analysis &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

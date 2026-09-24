@@ -103,3 +103,4 @@ class TlsHandshakeAnalysis(Base):
     # Relationships
     job = relationship("AnalysisJob", back_populates="tls_handshakes")
     tcp_session = relationship("TcpSession", back_populates="tls_handshake")
+    certificates = relationship("X509CertificateAnalysis", back_populates="tls_handshake", cascade="all, delete-orphan")

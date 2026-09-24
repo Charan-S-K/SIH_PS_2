@@ -770,5 +770,121 @@ export async function analyzeJobTlsHandshakes(jobId: string): Promise<{ data: Tl
   }
 }
 
+// -------------------------------------------------------------
+// Stage 08: X.509 Certificate Forensic Analysis Types & Client
+// -------------------------------------------------------------
+
+export interface SanItem {
+  type: string;
+  value: string;
+}
+
+export interface X509Certificate {
+  id: number;
+  job_id: string;
+  tcp_stream: number;
+  tcp_session_id?: string | null;
+  tls_handshake_id?: string | null;
+  frame_number?: number | null;
+  chain_index: number;
+  chain_length: number;
+  chain_status: string;
+  subject_dn: string;
+  subject_cn?: string | null;
+  subject_org?: string | null;
+  subject_ou?: string | null;
+  subject_country?: string | null;
+  subject_state?: string | null;
+  subject_locality?: string | null;
+  issuer_dn: string;
+  issuer_cn?: string | null;
+  issuer_org?: string | null;
+  issuer_ou?: string | null;
+  issuer_country?: string | null;
+  issuer_state?: string | null;
+  issuer_locality?: string | null;
+  serial_number: string;
+  not_before: string;
+  not_after: string;
+  validity_days: number;
+  validity_status: string;
+  days_until_expiration?: number | null;
+  sans: SanItem[];
+  public_key_algorithm: string;
+  key_size_bits?: number | null;
+  public_key_curve?: string | null;
+  signature_algorithm: string;
+  signature_digest?: string | null;
+  is_self_signed: boolean;
+  is_ca: boolean;
+  path_length_constraint?: number | null;
+  key_usage: string[];
+  extended_key_usage: string[];
+  fingerprint_sha256: string;
+  fingerprint_sha1: string;
+  raw_der_base64?: string | null;
+  parsing_status: string;
+  error_message?: string | null;
+  created_at?: string;
+}
+
+export interface X509CertificateListResponse {
+  job_id: string;
+  total_certificates: number;
+  valid_certificates: number;
+  expired_certificates: number;
+  not_yet_valid_certificates: number;
+  self_signed_certificates: number;
+  weak_keys_count: number;
+  weak_signatures_count: number;
+  certificates: X509Certificate[];
+}
+
+export async function fetchJobCertificates(jobId: string): Promise<{ data: X509CertificateListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/certificates`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch certificates` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch certificates' };
+  }
+}
+
+export async function fetchStreamCertificates(jobId: string, streamId: number): Promise<{ data: X509Certificate[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/certificates/${streamId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch stream certificates` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch stream certificates' };
+  }
+}
+
+export async function analyzeJobCertificates(jobId: string): Promise<{ data: X509CertificateListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/analyze-certificates`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to trigger certificate analysis` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to trigger certificate analysis' };
+  }
+}
+
 
 
