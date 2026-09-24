@@ -294,8 +294,19 @@ class PcapProcessor:
             self.db.commit()
             packet_batch.clear()
 
+        # Stage 03: Run Protocol Identification across extracted streams
+        try:
+            from app.services.protocol_identifier import ProtocolIdentifier
+            proto_identifier = ProtocolIdentifier(self.db)
+            proto_results = proto_identifier.identify_protocols_for_job(job.id)
+            if proto_results:
+                detected_protocols = set(p.protocol for p in proto_results)
+        except Exception as proto_err:
+            logger.warning("Protocol identification encountered a non-fatal issue for job %s: %s", job.id, proto_err)
+
         # Update AnalysisJob with statistics and mark COMPLETED
         duration = 0.0
+
         if start_time is not None and end_time is not None:
             duration = max(0.0, round(end_time - start_time, 4))
 

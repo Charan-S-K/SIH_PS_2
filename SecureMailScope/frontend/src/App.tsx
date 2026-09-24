@@ -4,6 +4,7 @@ import { HealthCard } from './components/HealthCard';
 import { PcapUploadCard } from './components/PcapUploadCard';
 import { JobsTable } from './components/JobsTable';
 import { PacketsModal } from './components/PacketsModal';
+import { ProtocolsModal } from './components/ProtocolsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -22,10 +23,13 @@ export const App: React.FC = () => {
   const [info, setInfo] = useState<InfoResponse | null>(null);
   const [jobs, setJobs] = useState<AnalysisJob[]>([]);
   const [selectedJob, setSelectedJob] = useState<AnalysisJob | null>(null);
+  const [selectedJobForProtocols, setSelectedJobForProtocols] = useState<AnalysisJob | null>(null);
+  const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingHealth, setLoadingHealth] = useState<boolean>(true);
   const [loadingJobs, setLoadingJobs] = useState<boolean>(false);
+
 
   const loadStatus = useCallback(async () => {
     setLoadingHealth(true);
@@ -79,7 +83,7 @@ export const App: React.FC = () => {
             </h1>
             <p className="mt-3 text-base text-slate-300 leading-relaxed">
               Passive email cryptographic forensics platform analyzing SMTP, IMAP, and POP3 network traffic.
-              Stage 02 adds automated packet extraction, IP & TCP metadata decoding, conversation stream tracking, and frame-level forensic exploration.
+              Stage 03 adds behavioral email protocol identification, conversational flow analysis, TLS handshake inspection, and forensic evidence tracking.
             </p>
           </div>
         </div>
@@ -103,7 +107,11 @@ export const App: React.FC = () => {
           jobs={jobs}
           loading={loadingJobs}
           onRefresh={loadJobs}
-          onInspectJob={(job) => setSelectedJob(job)}
+          onInspectJob={(job) => {
+            setTargetStreamId(undefined);
+            setSelectedJob(job);
+          }}
+          onViewProtocols={(job) => setSelectedJobForProtocols(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -143,13 +151,32 @@ export const App: React.FC = () => {
         {selectedJob && (
           <PacketsModal
             job={selectedJob}
-            onClose={() => setSelectedJob(null)}
+            initialStreamId={targetStreamId}
+            onClose={() => {
+              setSelectedJob(null);
+              setTargetStreamId(undefined);
+            }}
+          />
+        )}
+
+        {/* Protocol Identification & Forensic Evidence Modal */}
+        {selectedJobForProtocols && (
+          <ProtocolsModal
+            jobId={selectedJobForProtocols.id}
+            filename={selectedJobForProtocols.pcap_file?.original_filename || 'capture.pcap'}
+            onClose={() => setSelectedJobForProtocols(null)}
+            onInspectFrames={(streamId) => {
+              const job = selectedJobForProtocols;
+              setSelectedJobForProtocols(null);
+              setTargetStreamId(streamId);
+              setSelectedJob(job);
+            }}
           />
         )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 02 PCAP Processing &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 03 Protocol Identification &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

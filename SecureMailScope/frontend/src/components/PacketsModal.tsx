@@ -5,21 +5,24 @@ import { AnalysisJob, PacketItem, CaptureSummary, fetchJobPackets, fetchJobSumma
 interface PacketsModalProps {
   job: AnalysisJob;
   onClose: () => void;
+  initialStreamId?: number;
 }
 
-export const PacketsModal: React.FC<PacketsModalProps> = ({ job, onClose }) => {
+export const PacketsModal: React.FC<PacketsModalProps> = ({ job, onClose, initialStreamId }) => {
   const [packets, setPackets] = useState<PacketItem[]>([]);
   const [summary, setSummary] = useState<CaptureSummary | null>(null);
   const [total, setTotal] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
   const [protocolFilter, setProtocolFilter] = useState<string>('');
+  const [streamFilter, setStreamFilter] = useState<string>(initialStreamId !== undefined ? String(initialStreamId) : '');
   const [loading, setLoading] = useState<boolean>(true);
   const limit = 25;
 
   const loadData = async () => {
     setLoading(true);
+    const streamNum = streamFilter !== '' ? parseInt(streamFilter, 10) : undefined;
     const [packetsRes, summaryRes] = await Promise.all([
-      fetchJobPackets(job.id, limit, page * limit, protocolFilter || undefined),
+      fetchJobPackets(job.id, limit, page * limit, protocolFilter || undefined, undefined, isNaN(streamNum as number) ? undefined : streamNum),
       fetchJobSummary(job.id),
     ]);
 
@@ -35,7 +38,8 @@ export const PacketsModal: React.FC<PacketsModalProps> = ({ job, onClose }) => {
 
   useEffect(() => {
     loadData();
-  }, [job.id, page, protocolFilter]);
+  }, [job.id, page, protocolFilter, streamFilter]);
+
 
   const getProtocolBadge = (proto: string) => {
     if (proto.startsWith('SMTP')) {
@@ -132,8 +136,34 @@ export const PacketsModal: React.FC<PacketsModalProps> = ({ job, onClose }) => {
             ))}
           </div>
 
-          <div className="text-xs text-slate-400 font-mono">
-            Showing {packets.length} of {total} frames
+          <div className="flex items-center gap-4 text-xs font-mono">
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-400">Stream:</span>
+              <input
+                type="number"
+                placeholder="All"
+                value={streamFilter}
+                onChange={(e) => {
+                  setStreamFilter(e.target.value);
+                  setPage(0);
+                }}
+                className="w-16 px-2 py-0.5 bg-slate-950 border border-slate-700 rounded text-slate-200 focus:outline-none focus:border-blue-500 text-xs"
+              />
+              {streamFilter && (
+                <button
+                  onClick={() => {
+                    setStreamFilter('');
+                    setPage(0);
+                  }}
+                  className="text-slate-500 hover:text-slate-300 text-[10px]"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="text-slate-400">
+              Showing {packets.length} of {total} frames
+            </div>
           </div>
         </div>
 

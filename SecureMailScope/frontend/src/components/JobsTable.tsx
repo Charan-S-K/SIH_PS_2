@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { AnalysisJob, processJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
   loading: boolean;
   onRefresh: () => void;
   onInspectJob: (job: AnalysisJob) => void;
+  onViewProtocols?: (job: AnalysisJob) => void;
 }
 
-export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh, onInspectJob }) => {
+export const JobsTable: React.FC<JobsTableProps> = ({
+  jobs,
+  loading,
+  onRefresh,
+  onInspectJob,
+  onViewProtocols,
+}) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const handleProcess = async (jobId: string) => {
@@ -18,6 +25,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh, 
     setProcessingId(null);
     onRefresh();
   };
+
 
   const getStatusBadge = (status: string) => {
     switch (status.toUpperCase()) {
@@ -143,13 +151,26 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh, 
                         <span>{processingId === job.id ? 'Processing...' : 'Process PCAP'}</span>
                       </button>
                     ) : job.status === 'COMPLETED' ? (
-                      <button
-                        onClick={() => onInspectJob(job)}
-                        className="inline-flex items-center space-x-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-medium transition-colors"
-                      >
-                        <Eye className="h-3 w-3 text-emerald-400" />
-                        <span>Inspect Frames</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {onViewProtocols && (
+                          <button
+                            onClick={() => onViewProtocols(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700/60 text-[11px] font-medium transition-colors"
+                            title="View Identified Protocols & Forensic Evidence"
+                          >
+                            <ShieldCheck className="h-3 w-3 text-blue-400" />
+                            <span>Protocols</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onInspectJob(job)}
+                          className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-medium transition-colors"
+                          title="Inspect raw packet frames"
+                        >
+                          <Eye className="h-3 w-3 text-emerald-400" />
+                          <span>Frames</span>
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-[11px] text-slate-500">Failed</span>
                     )}

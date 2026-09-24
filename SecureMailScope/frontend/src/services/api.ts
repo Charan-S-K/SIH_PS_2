@@ -265,3 +265,101 @@ export async function fetchJobSummary(jobId: string): Promise<{ data: CaptureSum
     return { data: null, error: err.message || 'Failed to fetch capture summary' };
   }
 }
+
+export interface EvidenceFrame {
+  frame_number: number;
+  timestamp: number;
+  direction: string;
+  signature_matched: string;
+  matched_text?: string | null;
+}
+
+export interface PortAnalysis {
+  server_port?: number | null;
+  standard_port_for?: string | null;
+  matches_detected_protocol: boolean;
+  notes?: string | null;
+}
+
+export interface ProtocolEvidence {
+  matched_signatures: string[];
+  evidence_frames: EvidenceFrame[];
+  port_analysis?: PortAnalysis | null;
+  insufficient_evidence_reason?: string | null;
+  anomalies: string[];
+  tshark_protocol?: string | null;
+}
+
+export interface ProtocolItem {
+  id: string;
+  job_id: string;
+  tcp_stream?: number | null;
+  protocol: string;
+  confidence: number;
+  confidence_level: string;
+  classification_method: string;
+  is_mail_protocol: boolean;
+  client_ip?: string | null;
+  server_ip?: string | null;
+  client_port?: number | null;
+  server_port?: number | null;
+  summary?: string | null;
+  evidence?: ProtocolEvidence | null;
+  packet_count: number;
+  total_bytes: number;
+  created_at?: string | null;
+}
+
+export interface ProtocolListResponse {
+  job_id: string;
+  total_streams: number;
+  mail_streams: number;
+  protocols: ProtocolItem[];
+}
+
+export async function fetchJobProtocols(jobId: string): Promise<{ data: ProtocolListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/protocols`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch protocols` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch protocols' };
+  }
+}
+
+export async function fetchStreamProtocol(jobId: string, streamId: number): Promise<{ data: ProtocolItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/protocols/${streamId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Stream protocol not found` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch stream protocol' };
+  }
+}
+
+export async function identifyJobProtocols(jobId: string): Promise<{ data: ProtocolListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/identify-protocols`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to trigger protocol identification` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to trigger protocol identification' };
+  }
+}
+
