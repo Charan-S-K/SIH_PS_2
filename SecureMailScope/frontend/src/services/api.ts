@@ -363,3 +363,109 @@ export async function identifyJobProtocols(jobId: string): Promise<{ data: Proto
   }
 }
 
+export interface ConversationTurn {
+  direction: 'c2s' | 's2c';
+  start_frame: number;
+  end_frame: number;
+  start_time: number;
+  end_time: number;
+  byte_length: number;
+  text_preview: string;
+}
+
+export interface TcpSessionItem {
+  id: string;
+  job_id: string;
+  tcp_stream: number;
+  client_ip?: string | null;
+  server_ip?: string | null;
+  client_port?: number | null;
+  server_port?: number | null;
+  protocol: string;
+  session_state: string;
+  start_time: number;
+  end_time: number;
+  duration_seconds: number;
+  first_frame_number: number;
+  last_frame_number: number;
+  packet_count: number;
+  c2s_packet_count: number;
+  s2c_packet_count: number;
+  c2s_bytes: number;
+  s2c_bytes: number;
+  total_payload_bytes: number;
+  retransmissions_count: number;
+  out_of_order_count: number;
+  gaps_count: number;
+  syn_frame_number?: number | null;
+  syn_ack_frame_number?: number | null;
+  fin_frame_numbers?: number[] | null;
+  rst_frame_numbers?: number[] | null;
+  c2s_payload_preview?: string | null;
+  s2c_payload_preview?: string | null;
+  conversation_flow?: ConversationTurn[] | null;
+  reconstruction_metadata?: {
+    retransmissions?: any[];
+    out_of_order_segments?: any[];
+    gaps?: any[];
+    syn_observed?: boolean;
+    syn_ack_observed?: boolean;
+    fin_observed?: boolean;
+    rst_observed?: boolean;
+  } | null;
+  created_at?: string | null;
+}
+
+export interface TcpSessionListResponse {
+  job_id: string;
+  total_sessions: number;
+  sessions: TcpSessionItem[];
+}
+
+export async function fetchJobSessions(jobId: string): Promise<{ data: TcpSessionListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/sessions`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch sessions` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch sessions' };
+  }
+}
+
+export async function fetchStreamSession(jobId: string, streamId: number): Promise<{ data: TcpSessionItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/sessions/${streamId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Stream session not found` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch stream session' };
+  }
+}
+
+export async function reconstructJobSessions(jobId: string): Promise<{ data: TcpSessionListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/reconstruct-sessions`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to trigger session reconstruction` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to trigger session reconstruction' };
+  }
+}
+
+

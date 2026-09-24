@@ -13,14 +13,18 @@ from app.database import get_db
 from app.models.job import AnalysisJob
 from app.models.packet import PacketMetadata
 from app.models.protocol import ProtocolIdentification
+from app.models.session import TcpSession
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
+from app.schemas.session import TcpSessionResponse, TcpSessionListResponse
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
+from app.services.tcp_reconstructor import TcpReconstructor
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
 
 
 
@@ -278,4 +282,89 @@ def identify_job_protocols(job_id: str, db: Session = Depends(get_db)) -> Protoc
         mail_streams=mail_count,
         protocols=[ProtocolIdentificationResponse.model_validate(r) for r in records]
     )
+
+
+@router.get(
+    "/{job_id}/sessions",
+    response_model=TcpSessionListResponse,
+    summary="List reconstructed TCP sessions for a job",
+    description="Retrieves all reassembled TCP conversation sessions with metadata, lifecycle states, and packet statistics."
+)
+def list_job_sessions(job_id: str, db: Session = Depends(get_db)) -> TcpSessionListResponse:
+    """List all reconstructed TCP sessions for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    sessions = (
+        db.query(TcpSession)
+        .filter(TcpSession.job_id == job_id)
+        .order_by(TcpSession.tcp_stream.asc())
+        .all()
+    )
+    return TcpSessionListResponse(
+        job_id=job.id,
+        total_sessions=len(sessions),
+        sessions=[TcpSessionResponse.model_validate(s) for s in sessions]
+    )
+
+
+@router.get(
+    "/{job_id}/sessions/{tcp_stream}",
+    response_model=TcpSessionResponse,
+    summary="Get reconstructed TCP conversation for a specific stream",
+    description="Returns reassembled bidirectional stream data, conversational flow turns, lifecycle flags, and diagnostic anomalies."
+)
+def get_stream_session(job_id: str, tcp_stream: int, db: Session = Depends(get_db)) -> TcpSessionResponse:
+    """Retrieve full reconstructed conversation session for a specific stream."""
+    session = db.query(TcpSession).filter(
+        TcpSession.job_id == job_id,
+        TcpSession.tcp_stream == tcp_stream
+    ).first()
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"TCP session for stream {tcp_stream} in job '{job_id}' not found"
+        )
+    return TcpSessionResponse.model_validate(session)
+
+
+@router.post(
+    "/{job_id}/reconstruct-sessions",
+    response_model=TcpSessionListResponse,
+    summary="Run or refresh TCP session reconstruction for a job",
+    description="Executes sequence-number reassembly, out-of-order recovery, and turn generation for all streams."
+)
+def reconstruct_job_sessions(job_id: str, db: Session = Depends(get_db)) -> TcpSessionListResponse:
+    """Execute or refresh TCP session reconstruction for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    reconstructor = TcpReconstructor(db)
+    try:
+        sessions = reconstructor.reconstruct_job_sessions(job_id)
+    except ValueError as val_err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(val_err)
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"TCP session reconstruction failed: {str(exc)}"
+        )
+
+    return TcpSessionListResponse(
+        job_id=job.id,
+        total_sessions=len(sessions),
+        sessions=[TcpSessionResponse.model_validate(s) for s in sessions]
+    )
+
 

@@ -5,6 +5,7 @@ import { PcapUploadCard } from './components/PcapUploadCard';
 import { JobsTable } from './components/JobsTable';
 import { PacketsModal } from './components/PacketsModal';
 import { ProtocolsModal } from './components/ProtocolsModal';
+import { SessionsModal } from './components/SessionsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -24,6 +25,7 @@ export const App: React.FC = () => {
   const [jobs, setJobs] = useState<AnalysisJob[]>([]);
   const [selectedJob, setSelectedJob] = useState<AnalysisJob | null>(null);
   const [selectedJobForProtocols, setSelectedJobForProtocols] = useState<AnalysisJob | null>(null);
+  const [selectedJobForSessions, setSelectedJobForSessions] = useState<AnalysisJob | null>(null);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +114,7 @@ export const App: React.FC = () => {
             setSelectedJob(job);
           }}
           onViewProtocols={(job) => setSelectedJobForProtocols(job)}
+          onViewSessions={(job) => setSelectedJobForSessions(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -173,10 +176,25 @@ export const App: React.FC = () => {
             }}
           />
         )}
+
+        {/* TCP Sessions & Conversation Flow Modal */}
+        {selectedJobForSessions && (
+          <SessionsModal
+            jobId={selectedJobForSessions.id}
+            filename={selectedJobForSessions.pcap_file?.original_filename || 'capture.pcap'}
+            onClose={() => setSelectedJobForSessions(null)}
+            onInspectFrames={(streamId) => {
+              const job = selectedJobForSessions;
+              setSelectedJobForSessions(null);
+              setTargetStreamId(streamId);
+              setSelectedJob(job);
+            }}
+          />
+        )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 03 Protocol Identification &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 04 TCP Session Reconstruction &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

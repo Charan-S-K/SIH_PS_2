@@ -304,8 +304,17 @@ class PcapProcessor:
         except Exception as proto_err:
             logger.warning("Protocol identification encountered a non-fatal issue for job %s: %s", job.id, proto_err)
 
+        # Stage 04: Reconstruct TCP Sessions and conversational streams
+        try:
+            from app.services.tcp_reconstructor import TcpReconstructor
+            reconstructor = TcpReconstructor(self.db)
+            reconstructor.reconstruct_job_sessions(job.id)
+        except Exception as sess_err:
+            logger.warning("TCP Session reconstruction encountered a non-fatal issue for job %s: %s", job.id, sess_err)
+
         # Update AnalysisJob with statistics and mark COMPLETED
         duration = 0.0
+
 
         if start_time is not None and end_time is not None:
             duration = max(0.0, round(end_time - start_time, 4))

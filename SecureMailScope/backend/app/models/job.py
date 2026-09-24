@@ -35,4 +35,6 @@ class AnalysisJob(Base, TimestampMixin):
     pcap_file = relationship("PcapFile", back_populates="jobs")
     packets = relationship("PacketMetadata", back_populates="job", cascade="all, delete-orphan")
     protocol_identifications = relationship("ProtocolIdentification", back_populates="job", cascade="all, delete-orphan")
+    tcp_sessions = relationship("TcpSession", back_populates="job", cascade="all, delete-orphan")
+
 

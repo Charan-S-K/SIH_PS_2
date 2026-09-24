@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnalysisJob, processJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
@@ -8,6 +8,7 @@ interface JobsTableProps {
   onRefresh: () => void;
   onInspectJob: (job: AnalysisJob) => void;
   onViewProtocols?: (job: AnalysisJob) => void;
+  onViewSessions?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -16,6 +17,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onRefresh,
   onInspectJob,
   onViewProtocols,
+  onViewSessions,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -160,6 +162,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <ShieldCheck className="h-3 w-3 text-blue-400" />
                             <span>Protocols</span>
+                          </button>
+                        )}
+                        {onViewSessions && (
+                          <button
+                            onClick={() => onViewSessions(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 border border-indigo-700/60 text-[11px] font-medium transition-colors"
+                            title="View TCP Session Reconstruction & Follow Stream"
+                          >
+                            <MessageSquare className="h-3 w-3 text-indigo-400" />
+                            <span>Sessions</span>
                           </button>
                         )}
                         <button
