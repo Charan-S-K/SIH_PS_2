@@ -8,6 +8,7 @@ from app.models.protocol import ProtocolIdentification
 from app.models.session import TcpSession
 from app.models.email_analysis import EmailSessionAnalysis
 from app.models.starttls import StarttlsAnalysis
+from app.models.tls_handshake import TlsHandshakeAnalysis
 
 __all__ = [
     "Base",
@@ -19,6 +20,7 @@ __all__ = [
     "TcpSession",
     "EmailSessionAnalysis",
     "StarttlsAnalysis",
+    "TlsHandshakeAnalysis",
 ]
 
 

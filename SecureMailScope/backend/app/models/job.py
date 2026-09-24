@@ -38,6 +38,7 @@ class AnalysisJob(Base, TimestampMixin):
     tcp_sessions = relationship("TcpSession", back_populates="job", cascade="all, delete-orphan")
     email_sessions = relationship("EmailSessionAnalysis", back_populates="job", cascade="all, delete-orphan")
     starttls_analyses = relationship("StarttlsAnalysis", back_populates="job", cascade="all, delete-orphan")
+    tls_handshakes = relationship("TlsHandshakeAnalysis", back_populates="job", cascade="all, delete-orphan")
 
 
 

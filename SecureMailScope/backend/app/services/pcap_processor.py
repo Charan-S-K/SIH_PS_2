@@ -328,6 +328,14 @@ class PcapProcessor:
         except Exception as starttls_err:
             logger.warning("STARTTLS analysis encountered a non-fatal issue for job %s: %s", job.id, starttls_err)
 
+        # Stage 07: Reconstruct and analyze observable TLS Handshakes
+        try:
+            from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
+            tls_analyzer = TlsHandshakeAnalyzer(self.db)
+            tls_analyzer.analyze_job_tls_handshakes(job.id)
+        except Exception as tls_err:
+            logger.warning("TLS handshake analysis encountered a non-fatal issue for job %s: %s", job.id, tls_err)
+
 
         # Update AnalysisJob with statistics and mark COMPLETED
         duration = 0.0

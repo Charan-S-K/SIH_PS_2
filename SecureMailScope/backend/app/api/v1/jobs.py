@@ -16,17 +16,20 @@ from app.models.protocol import ProtocolIdentification
 from app.models.session import TcpSession
 from app.models.email_analysis import EmailSessionAnalysis
 from app.models.starttls import StarttlsAnalysis
+from app.models.tls_handshake import TlsHandshakeAnalysis
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
 from app.schemas.session import TcpSessionResponse, TcpSessionListResponse
 from app.schemas.email_analysis import EmailSessionAnalysisResponse, EmailSessionAnalysisListResponse
 from app.schemas.starttls import StarttlsAnalysisResponse, StarttlsAnalysisListResponse
+from app.schemas.tls_handshake import TlsHandshakeAnalysisResponse, TlsHandshakeAnalysisListResponse
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
 from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
 from app.services.starttls_analyzer import StarttlsAnalyzer
+from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
 
 
 logger = logging.getLogger(__name__)
@@ -559,6 +562,113 @@ def analyze_job_starttls(job_id: str, db: Session = Depends(get_db)) -> Starttls
         downgrade_risk_count=downgrade_risk_count,
         critical_findings_count=critical_findings_count,
         analyses=[StarttlsAnalysisResponse.model_validate(a) for a in analyses]
+    )
+
+
+@router.get(
+    "/{job_id}/tls-handshakes",
+    response_model=TlsHandshakeAnalysisListResponse,
+    summary="List reconstructed TLS Handshake analyses for a job",
+    description="Retrieves reconstructed observable TLS Handshake messages, negotiated versions, cipher suites, key-exchange parameters, and alerts across all streams."
+)
+def list_job_tls_handshakes(job_id: str, db: Session = Depends(get_db)) -> TlsHandshakeAnalysisListResponse:
+    """List all observable TLS Handshake analyses for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    analyses = (
+        db.query(TlsHandshakeAnalysis)
+        .filter(TlsHandshakeAnalysis.job_id == job_id)
+        .order_by(TlsHandshakeAnalysis.tcp_stream.asc())
+        .all()
+    )
+
+    completed_count = sum(1 for a in analyses if a.handshake_status == "COMPLETED")
+    tls13_count = sum(1 for a in analyses if a.negotiated_version == "TLS 1.3")
+    tls12_count = sum(1 for a in analyses if a.negotiated_version == "TLS 1.2")
+    legacy_tls_count = sum(1 for a in analyses if a.negotiated_version in ("TLS 1.1", "TLS 1.0", "SSL 3.0"))
+    alert_count = sum(1 for a in analyses if a.has_alert or a.handshake_status == "ALERT_TERMINATED")
+
+    return TlsHandshakeAnalysisListResponse(
+        job_id=job.id,
+        total_handshakes=len(analyses),
+        completed_count=completed_count,
+        tls13_count=tls13_count,
+        tls12_count=tls12_count,
+        legacy_tls_count=legacy_tls_count,
+        alert_count=alert_count,
+        analyses=[TlsHandshakeAnalysisResponse.model_validate(a) for a in analyses]
+    )
+
+
+@router.get(
+    "/{job_id}/tls-handshakes/{tcp_stream}",
+    response_model=TlsHandshakeAnalysisResponse,
+    summary="Get TLS Handshake analysis for a specific stream",
+    description="Returns detailed ClientHello, ServerHello, Certificate, extension parameters, and forensic timeline for a single stream."
+)
+def get_stream_tls_handshake(job_id: str, tcp_stream: int, db: Session = Depends(get_db)) -> TlsHandshakeAnalysisResponse:
+    """Retrieve TLS Handshake analysis for a specific stream."""
+    analysis = db.query(TlsHandshakeAnalysis).filter(
+        TlsHandshakeAnalysis.job_id == job_id,
+        TlsHandshakeAnalysis.tcp_stream == tcp_stream
+    ).first()
+    if not analysis:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"TLS Handshake analysis for stream {tcp_stream} in job '{job_id}' not found"
+        )
+    return TlsHandshakeAnalysisResponse.model_validate(analysis)
+
+
+@router.post(
+    "/{job_id}/analyze-tls-handshakes",
+    response_model=TlsHandshakeAnalysisListResponse,
+    summary="Run or refresh TLS Handshake analysis for a job",
+    description="Executes observable TLS record parsing, handshake reconstruction, and cryptographic parameter extraction across all candidate streams."
+)
+def analyze_job_tls_handshakes(job_id: str, db: Session = Depends(get_db)) -> TlsHandshakeAnalysisListResponse:
+    """Execute or refresh TLS Handshake analysis for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    analyzer = TlsHandshakeAnalyzer(db)
+    try:
+        analyses = analyzer.analyze_job_tls_handshakes(job_id)
+    except ValueError as val_err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(val_err)
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"TLS Handshake analysis failed: {str(exc)}"
+        )
+
+    completed_count = sum(1 for a in analyses if a.handshake_status == "COMPLETED")
+    tls13_count = sum(1 for a in analyses if a.negotiated_version == "TLS 1.3")
+    tls12_count = sum(1 for a in analyses if a.negotiated_version == "TLS 1.2")
+    legacy_tls_count = sum(1 for a in analyses if a.negotiated_version in ("TLS 1.1", "TLS 1.0", "SSL 3.0"))
+    alert_count = sum(1 for a in analyses if a.has_alert or a.handshake_status == "ALERT_TERMINATED")
+
+    return TlsHandshakeAnalysisListResponse(
+        job_id=job.id,
+        total_handshakes=len(analyses),
+        completed_count=completed_count,
+        tls13_count=tls13_count,
+        tls12_count=tls12_count,
+        legacy_tls_count=legacy_tls_count,
+        alert_count=alert_count,
+        analyses=[TlsHandshakeAnalysisResponse.model_validate(a) for a in analyses]
     )
 
 

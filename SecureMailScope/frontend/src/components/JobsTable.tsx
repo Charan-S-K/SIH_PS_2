@@ -11,6 +11,7 @@ interface JobsTableProps {
   onViewSessions?: (job: AnalysisJob) => void;
   onViewEmailAnalysis?: (job: AnalysisJob) => void;
   onViewStarttls?: (job: AnalysisJob) => void;
+  onViewTlsHandshakes?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -22,6 +23,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onViewSessions,
   onViewEmailAnalysis,
   onViewStarttls,
+  onViewTlsHandshakes,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -196,6 +198,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <Lock className="h-3 w-3 text-emerald-400" />
                             <span>STARTTLS</span>
+                          </button>
+                        )}
+                        {onViewTlsHandshakes && (
+                          <button
+                            onClick={() => onViewTlsHandshakes(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700/60 text-[11px] font-medium transition-colors"
+                            title="View Reconstructed TLS Handshake & Cipher Suite Details"
+                          >
+                            <ShieldCheck className="h-3 w-3 text-blue-400" />
+                            <span>TLS</span>
                           </button>
                         )}
                         <button

@@ -652,5 +652,123 @@ export async function analyzeJobStarttls(jobId: string): Promise<{ data: Starttl
   }
 }
 
+export interface TlsCipherSuiteItem {
+  id: number;
+  hex: string;
+  name: string;
+}
+
+export interface TlsHandshakeMessageItem {
+  message_type: string;
+  frame_number?: number | null;
+  timestamp?: number | null;
+  length?: number | null;
+  info?: string | null;
+}
+
+export interface TlsHandshakeAnalysisItem {
+  id: string;
+  job_id: string;
+  tcp_session_id?: string | null;
+  tcp_stream: number;
+  protocol: string;
+  client_ip?: string | null;
+  server_ip?: string | null;
+  client_port?: number | null;
+  server_port?: number | null;
+  handshake_status: string;
+  is_starttls: boolean;
+  negotiated_version: string;
+  negotiated_version_raw?: number | null;
+  negotiated_cipher_suite: string;
+  negotiated_cipher_id?: number | null;
+  key_exchange_group?: string | null;
+  signature_scheme?: string | null;
+  sni?: string | null;
+  alpn_selected?: string | null;
+  client_hello_frame?: number | null;
+  client_hello_time?: number | null;
+  client_hello_version?: string | null;
+  client_random?: string | null;
+  client_offered_ciphers?: TlsCipherSuiteItem[] | null;
+  client_supported_versions?: string[] | null;
+  client_supported_groups?: string[] | null;
+  client_signature_algorithms?: string[] | null;
+  client_alpn_protocols?: string[] | null;
+  client_extensions_count: number;
+  server_hello_frame?: number | null;
+  server_hello_time?: number | null;
+  server_hello_version?: string | null;
+  server_random?: string | null;
+  server_extensions_count: number;
+  certificate_frame?: number | null;
+  certificate_chain_length: number;
+  has_alert: boolean;
+  alert_level?: string | null;
+  alert_description?: string | null;
+  alert_frame?: number | null;
+  handshake_messages?: TlsHandshakeMessageItem[] | null;
+  handshake_duration_ms?: number | null;
+  evidence?: any[] | null;
+  created_at?: string | null;
+}
+
+export interface TlsHandshakeAnalysisListResponse {
+  job_id: string;
+  total_handshakes: number;
+  completed_count: number;
+  tls13_count: number;
+  tls12_count: number;
+  legacy_tls_count: number;
+  alert_count: number;
+  analyses: TlsHandshakeAnalysisItem[];
+}
+
+export async function fetchJobTlsHandshakes(jobId: string): Promise<{ data: TlsHandshakeAnalysisListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/tls-handshakes`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch TLS handshakes` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch TLS handshakes' };
+  }
+}
+
+export async function fetchStreamTlsHandshake(jobId: string, streamId: number): Promise<{ data: TlsHandshakeAnalysisItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/tls-handshakes/${streamId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Stream TLS handshake not found` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch stream TLS handshake' };
+  }
+}
+
+export async function analyzeJobTlsHandshakes(jobId: string): Promise<{ data: TlsHandshakeAnalysisListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/analyze-tls-handshakes`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to trigger TLS handshake analysis` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to trigger TLS handshake analysis' };
+  }
+}
+
 
 
