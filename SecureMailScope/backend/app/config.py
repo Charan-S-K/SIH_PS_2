@@ -4,6 +4,7 @@ Loads configuration from environment variables or .env file.
 """
 
 import json
+import os
 from functools import lru_cache
 from typing import List, Union
 from pydantic import Field, field_validator
@@ -37,6 +38,20 @@ class Settings(BaseSettings):
     DATABASE_CONNECT_TIMEOUT_SECONDS: int = Field(
         default=5,
         description="Database connection timeout in seconds"
+    )
+
+    # PCAP Storage & Upload Limits (Stage 01)
+    UPLOAD_DIR: str = Field(
+        default="data/uploads",
+        description="Directory for storing uploaded PCAP/PCAPNG files"
+    )
+    MAX_UPLOAD_SIZE_BYTES: int = Field(
+        default=100 * 1024 * 1024,  # 100 MB default limit
+        description="Maximum allowed upload file size in bytes"
+    )
+    ALLOWED_EXTENSIONS: List[str] = Field(
+        default=[".pcap", ".pcapng", ".cap"],
+        description="Allowed file extensions for captures"
     )
 
     # CORS settings: accepts JSON list string or comma-separated string

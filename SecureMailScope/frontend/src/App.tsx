@@ -1,19 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { HealthCard } from './components/HealthCard';
-import { checkLiveness, checkReadiness, fetchSystemInfo, HealthResponse, ReadinessResponse, InfoResponse } from './services/api';
+import { PcapUploadCard } from './components/PcapUploadCard';
+import { JobsTable } from './components/JobsTable';
+import {
+  checkLiveness,
+  checkReadiness,
+  fetchSystemInfo,
+  listJobs,
+  HealthResponse,
+  ReadinessResponse,
+  InfoResponse,
+  AnalysisJob
+} from './services/api';
 import { ShieldCheck, Layers, GitBranch, HardDrive } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
   const [info, setInfo] = useState<InfoResponse | null>(null);
+  const [jobs, setJobs] = useState<AnalysisJob[]>([]);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingHealth, setLoadingHealth] = useState<boolean>(true);
+  const [loadingJobs, setLoadingJobs] = useState<boolean>(false);
 
   const loadStatus = useCallback(async () => {
-    setLoading(true);
+    setLoadingHealth(true);
     const [livenessRes, readinessRes, infoRes] = await Promise.all([
       checkLiveness(),
       checkReadiness(),
@@ -25,15 +38,27 @@ export const App: React.FC = () => {
     setError(livenessRes.error);
     setReadiness(readinessRes.data);
     setInfo(infoRes.data);
-    setLoading(false);
+    setLoadingHealth(false);
+  }, []);
+
+  const loadJobs = useCallback(async () => {
+    setLoadingJobs(true);
+    const { data } = await listJobs(20, 0);
+    if (data && data.jobs) {
+      setJobs(data.jobs);
+    }
+    setLoadingJobs(false);
   }, []);
 
   useEffect(() => {
     loadStatus();
-    // Auto probe every 30 seconds
-    const interval = setInterval(loadStatus, 30000);
+    loadJobs();
+    const interval = setInterval(() => {
+      loadStatus();
+      loadJobs();
+    }, 30000);
     return () => clearInterval(interval);
-  }, [loadStatus]);
+  }, [loadStatus, loadJobs]);
 
   return (
     <div className="min-h-screen bg-[#0b0f19] flex flex-col font-sans text-slate-100">
@@ -52,23 +77,33 @@ export const App: React.FC = () => {
             </h1>
             <p className="mt-3 text-base text-slate-300 leading-relaxed">
               Passive email cryptographic forensics platform analyzing SMTP, IMAP, and POP3 network traffic.
-              Stage 00 Foundation establishes the FastAPI backend, React UI, PostgreSQL connection, and health probes.
+              Stage 01 enables secure PCAP/PCAPNG capture ingestion, SHA-256 integrity verification, safe storage, and analysis job tracking.
             </p>
           </div>
         </div>
 
-        {/* Live Connectivity Card */}
-        <HealthCard
-          health={health}
-          readiness={readiness}
-          info={info}
-          latencyMs={latencyMs}
-          error={error}
-          loading={loading}
-          onRefresh={loadStatus}
+        {/* Ingestion & Status Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <PcapUploadCard onUploadSuccess={loadJobs} />
+          <HealthCard
+            health={health}
+            readiness={readiness}
+            info={info}
+            latencyMs={latencyMs}
+            error={error}
+            loading={loadingHealth}
+            onRefresh={loadStatus}
+          />
+        </div>
+
+        {/* Jobs History Table */}
+        <JobsTable
+          jobs={jobs}
+          loading={loadingJobs}
+          onRefresh={loadJobs}
         />
 
-        {/* Architectural Principles & Stage Roadmap Preview */}
+        {/* Architectural Principles Preview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-5 rounded-xl bg-[#111827] border border-slate-800">
             <div className="p-2.5 w-fit rounded-lg bg-blue-950 text-blue-400 mb-3 border border-blue-800/40">
@@ -76,7 +111,7 @@ export const App: React.FC = () => {
             </div>
             <h3 className="font-semibold text-slate-200 text-sm">Evidence-First Forensic Model</h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Architecture flow: Facts → Rules → Evidence → ML → Prioritization → Recommendation. No fabricated facts; explicit UNKNOWN support.
+              Facts → Rules → Evidence → ML → Prioritization → Recommendation. No fabricated facts; explicit UNKNOWN support.
             </p>
           </div>
 
@@ -94,16 +129,16 @@ export const App: React.FC = () => {
             <div className="p-2.5 w-fit rounded-lg bg-purple-950 text-purple-400 mb-3 border border-purple-800/40">
               <HardDrive className="h-5 w-5" />
             </div>
-            <h3 className="font-semibold text-slate-200 text-sm">Free & Local Deployment</h3>
+            <h3 className="font-semibold text-slate-200 text-sm">Safe Ingestion Architecture</h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              100% locally runnable stack: FastAPI, PostgreSQL, TShark/PyShark, React/Vite, Scikit-Learn, Docker Compose. Zero paid API dependencies.
+              Untrusted input sandboxing: streaming size limits, magic-byte header sniffing, SHA-256 fingerprinting, and path traversal prevention.
             </p>
           </div>
         </div>
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 00 Foundation &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 01 PCAP Upload & Jobs &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

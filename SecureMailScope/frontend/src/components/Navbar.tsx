@@ -27,7 +27,7 @@ export const Navbar: React.FC = () => {
           </div>
           <div className="flex items-center space-x-1.5 text-xs font-medium text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-3 py-1.5 rounded-full">
             <Activity className="h-3.5 w-3.5 animate-pulse" />
-            <span>Stage 00 Foundation</span>
+            <span>Stage 01 PCAP Upload & Jobs</span>
           </div>
         </div>
       </div>

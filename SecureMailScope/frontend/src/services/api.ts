@@ -30,6 +30,49 @@ export interface InfoResponse {
   current_stage: string;
 }
 
+export interface PcapFileMeta {
+  id: string;
+  original_filename: string;
+  file_size_bytes: number;
+  sha256: string;
+  md5: string;
+  file_format: string;
+  is_valid: boolean;
+  created_at: string;
+}
+
+export interface PcapUploadResult {
+  job_id: string;
+  file_id: string;
+  filename: string;
+  file_size_bytes: number;
+  sha256: string;
+  md5: string;
+  file_format: string;
+  status: string;
+  created_at: string;
+}
+
+export interface AnalysisJob {
+  id: string;
+  pcap_file_id: string;
+  status: 'PENDING' | 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | string;
+  progress_percent: number;
+  stage_message: string;
+  error_message?: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string | null;
+  pcap_file?: PcapFileMeta | null;
+}
+
+export interface JobListResponse {
+  total: number;
+  limit: number;
+  offset: number;
+  jobs: AnalysisJob[];
+}
+
 const API_BASE = '/api/v1';
 
 export async function checkLiveness(): Promise<{ data: HealthResponse | null; latencyMs: number; error: string | null }> {
@@ -74,5 +117,58 @@ export async function fetchSystemInfo(): Promise<{ data: InfoResponse | null; er
     return { data, error: null };
   } catch (err: any) {
     return { data: null, error: err.message || 'Failed to fetch system info' };
+  }
+}
+
+export async function uploadPcapFile(file: File): Promise<{ data: PcapUploadResult | null; error: string | null }> {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/pcap/upload`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    const body = await res.json();
+    if (!res.ok) {
+      return { data: null, error: body.detail || `Upload failed with HTTP ${res.status}` };
+    }
+    return { data: body, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Network error during upload' };
+  }
+}
+
+export async function listJobs(limit: number = 20, offset: number = 0): Promise<{ data: JobListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs?limit=${limit}&offset=${offset}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch analysis jobs' };
+  }
+}
+
+export async function getJobDetails(jobId: string): Promise<{ data: AnalysisJob | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch job status' };
   }
 }

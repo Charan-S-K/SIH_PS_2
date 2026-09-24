@@ -21,10 +21,11 @@ build/
 
 # Test / coverage
 .pytest_cache/
-.coverage
+.coverage*
 htmlcov/
 
-# Local data
+# Local data / uploads
 *.pcap
 *.pcapng
-data/local/
+*.cap
+data/

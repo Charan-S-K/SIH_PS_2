@@ -12,7 +12,8 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.api.v1 import api_v1_router
-from app.database import check_database_connection
+from app.database import engine, Base, check_database_connection
+import app.models  # Ensure models are imported for metadata registration
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,10 +29,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application startup and shutdown lifecycle management."""
     logger.info("Initializing %s v%s in %s mode...", settings.PROJECT_NAME, settings.VERSION, settings.ENVIRONMENT)
     
-    # Check initial database connectivity (log warning, do not crash so service can report readiness state)
+    # Check initial database connectivity and create tables if connected
     db_ok, db_err = check_database_connection()
     if db_ok:
         logger.info("Initial database connectivity verified.")
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Database tables initialized successfully.")
+        except Exception as exc:
+            logger.warning("Failed to initialize database tables: %s", exc)
     else:
         logger.warning("Initial database connection failed: %s (Will retry upon requests)", db_err)
     
@@ -75,7 +81,9 @@ def root_endpoint():
         "documentation": "/docs",
         "health": f"{settings.API_V1_STR}/health",
         "readiness": f"{settings.API_V1_STR}/health/ready",
-        "info": f"{settings.API_V1_STR}/health/info"
+        "info": f"{settings.API_V1_STR}/health/info",
+        "pcap_upload": f"{settings.API_V1_STR}/pcap/upload",
+        "jobs": f"{settings.API_V1_STR}/jobs"
     }
 
 
