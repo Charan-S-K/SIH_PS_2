@@ -312,6 +312,15 @@ class PcapProcessor:
         except Exception as sess_err:
             logger.warning("TCP Session reconstruction encountered a non-fatal issue for job %s: %s", job.id, sess_err)
 
+        # Stage 05: Analyze Email Protocols (SMTP, IMAP, POP3) state machines & events
+        try:
+            from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
+            email_analyzer = EmailProtocolAnalyzer(self.db)
+            email_analyzer.analyze_job_sessions(job.id)
+        except Exception as email_err:
+            logger.warning("Email protocol analysis encountered a non-fatal issue for job %s: %s", job.id, email_err)
+
+
         # Update AnalysisJob with statistics and mark COMPLETED
         duration = 0.0
 

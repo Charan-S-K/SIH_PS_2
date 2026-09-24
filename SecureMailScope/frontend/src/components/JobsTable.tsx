@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnalysisJob, processJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
@@ -9,6 +9,7 @@ interface JobsTableProps {
   onInspectJob: (job: AnalysisJob) => void;
   onViewProtocols?: (job: AnalysisJob) => void;
   onViewSessions?: (job: AnalysisJob) => void;
+  onViewEmailAnalysis?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -18,6 +19,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onInspectJob,
   onViewProtocols,
   onViewSessions,
+  onViewEmailAnalysis,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -172,6 +174,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <MessageSquare className="h-3 w-3 text-indigo-400" />
                             <span>Sessions</span>
+                          </button>
+                        )}
+                        {onViewEmailAnalysis && (
+                          <button
+                            onClick={() => onViewEmailAnalysis(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-cyan-900/60 hover:bg-cyan-800 text-cyan-200 border border-cyan-700/60 text-[11px] font-medium transition-colors"
+                            title="View Email Protocol State Machine & Events"
+                          >
+                            <MailCheck className="h-3 w-3 text-cyan-400" />
+                            <span>Email Analysis</span>
                           </button>
                         )}
                         <button

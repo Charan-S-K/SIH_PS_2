@@ -468,4 +468,97 @@ export async function reconstructJobSessions(jobId: string): Promise<{ data: Tcp
   }
 }
 
+export interface EmailProtocolEvent {
+  direction: 'c2s' | 's2c';
+  event_type: string;
+  command?: string | null;
+  argument?: string | null;
+  response_code?: string | null;
+  raw_text: string;
+  frame_number?: number | null;
+  timestamp?: number | null;
+}
+
+export interface EmailSessionAnalysisItem {
+  id: string;
+  job_id: string;
+  tcp_session_id?: string | null;
+  tcp_stream: number;
+  protocol: string;
+  client_ip?: string | null;
+  server_ip?: string | null;
+  client_port?: number | null;
+  server_port?: number | null;
+  server_banner?: string | null;
+  client_greeting?: string | null;
+  session_state: string;
+  capabilities?: string[] | null;
+  starttls_advertised: boolean;
+  starttls_requested: boolean;
+  starttls_accepted: boolean;
+  auth_mechanisms?: string[] | null;
+  auth_attempted: boolean;
+  auth_successful?: boolean | null;
+  auth_usernames?: string[] | null;
+  commands_count: number;
+  events?: EmailProtocolEvent[] | null;
+  security_warnings?: string[] | null;
+  first_frame_number?: number | null;
+  last_frame_number?: number | null;
+  created_at?: string | null;
+}
+
+export interface EmailSessionAnalysisListResponse {
+  job_id: string;
+  total_email_sessions: number;
+  sessions: EmailSessionAnalysisItem[];
+}
+
+export async function fetchJobEmailSessions(jobId: string): Promise<{ data: EmailSessionAnalysisListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/email-sessions`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch email sessions` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch email sessions' };
+  }
+}
+
+export async function fetchStreamEmailSession(jobId: string, streamId: number): Promise<{ data: EmailSessionAnalysisItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/email-sessions/${streamId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Stream email session not found` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch stream email session' };
+  }
+}
+
+export async function analyzeJobEmailProtocols(jobId: string): Promise<{ data: EmailSessionAnalysisListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/analyze-email-protocols`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to trigger email protocol analysis` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to trigger email protocol analysis' };
+  }
+}
+
+
 

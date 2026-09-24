@@ -66,3 +66,5 @@ class TcpSession(Base, TimestampMixin):
 
     # Relationships
     job = relationship("AnalysisJob", back_populates="tcp_sessions")
+    email_analysis = relationship("EmailSessionAnalysis", back_populates="tcp_session", uselist=False, cascade="all, delete-orphan")
+

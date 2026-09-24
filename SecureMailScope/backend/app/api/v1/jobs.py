@@ -14,13 +14,17 @@ from app.models.job import AnalysisJob
 from app.models.packet import PacketMetadata
 from app.models.protocol import ProtocolIdentification
 from app.models.session import TcpSession
+from app.models.email_analysis import EmailSessionAnalysis
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
 from app.schemas.session import TcpSessionResponse, TcpSessionListResponse
+from app.schemas.email_analysis import EmailSessionAnalysisResponse, EmailSessionAnalysisListResponse
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
+from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -366,5 +370,90 @@ def reconstruct_job_sessions(job_id: str, db: Session = Depends(get_db)) -> TcpS
         total_sessions=len(sessions),
         sessions=[TcpSessionResponse.model_validate(s) for s in sessions]
     )
+
+
+@router.get(
+    "/{job_id}/email-sessions",
+    response_model=EmailSessionAnalysisListResponse,
+    summary="List analyzed email protocol sessions for a job",
+    description="Retrieves all analyzed SMTP, IMAP, and POP3 sessions with state machine statuses, capabilities, and security warnings."
+)
+def list_job_email_sessions(job_id: str, db: Session = Depends(get_db)) -> EmailSessionAnalysisListResponse:
+    """List all analyzed email protocol sessions for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    sessions = (
+        db.query(EmailSessionAnalysis)
+        .filter(EmailSessionAnalysis.job_id == job_id)
+        .order_by(EmailSessionAnalysis.tcp_stream.asc())
+        .all()
+    )
+    return EmailSessionAnalysisListResponse(
+        job_id=job.id,
+        total_email_sessions=len(sessions),
+        sessions=[EmailSessionAnalysisResponse.model_validate(s) for s in sessions]
+    )
+
+
+@router.get(
+    "/{job_id}/email-sessions/{tcp_stream}",
+    response_model=EmailSessionAnalysisResponse,
+    summary="Get email protocol session analysis for a specific stream",
+    description="Returns detailed command-response event timeline, capability list, authentication attempts, and security warnings for a stream."
+)
+def get_stream_email_session(job_id: str, tcp_stream: int, db: Session = Depends(get_db)) -> EmailSessionAnalysisResponse:
+    """Retrieve email protocol analysis for a specific stream."""
+    session = db.query(EmailSessionAnalysis).filter(
+        EmailSessionAnalysis.job_id == job_id,
+        EmailSessionAnalysis.tcp_stream == tcp_stream
+    ).first()
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Email session analysis for stream {tcp_stream} in job '{job_id}' not found"
+        )
+    return EmailSessionAnalysisResponse.model_validate(session)
+
+
+@router.post(
+    "/{job_id}/analyze-email-protocols",
+    response_model=EmailSessionAnalysisListResponse,
+    summary="Run or refresh email protocol analysis for a job",
+    description="Executes SMTP, IMAP, and POP3 state machine and command-response analysis across all streams."
+)
+def analyze_job_email_protocols(job_id: str, db: Session = Depends(get_db)) -> EmailSessionAnalysisListResponse:
+    """Execute or refresh email protocol analysis for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    analyzer = EmailProtocolAnalyzer(db)
+    try:
+        sessions = analyzer.analyze_job_sessions(job_id)
+    except ValueError as val_err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(val_err)
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Email protocol analysis failed: {str(exc)}"
+        )
+
+    return EmailSessionAnalysisListResponse(
+        job_id=job.id,
+        total_email_sessions=len(sessions),
+        sessions=[EmailSessionAnalysisResponse.model_validate(s) for s in sessions]
+    )
+
 
 
