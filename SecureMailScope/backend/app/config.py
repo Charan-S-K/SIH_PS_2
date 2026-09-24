@@ -5,8 +5,9 @@ Loads configuration from environment variables or .env file.
 
 import json
 import os
+import shutil
 from functools import lru_cache
-from typing import List, Union
+from typing import List, Optional, Union
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -52,6 +53,16 @@ class Settings(BaseSettings):
     ALLOWED_EXTENSIONS: List[str] = Field(
         default=[".pcap", ".pcapng", ".cap"],
         description="Allowed file extensions for captures"
+    )
+
+    # PCAP Processing & TShark Configuration (Stage 02)
+    TSHARK_PATH: Optional[str] = Field(
+        default=None,
+        description="Path to tshark executable (if None, autodetects in PATH)"
+    )
+    DEFAULT_PACKET_BATCH_SIZE: int = Field(
+        default=1000,
+        description="Batch size for database bulk insertions of packet metadata"
     )
 
     # CORS settings: accepts JSON list string or comma-separated string

@@ -3,8 +3,7 @@ AnalysisJob database model representing processing jobs.
 """
 
 import uuid
-from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.models.base import TimestampMixin
@@ -22,5 +21,16 @@ class AnalysisJob(Base, TimestampMixin):
     error_message = Column(Text, nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
+    # Forensic capture statistics (Stage 02)
+    total_packets = Column(Integer, default=0, nullable=False)
+    tcp_packets = Column(Integer, default=0, nullable=False)
+    udp_packets = Column(Integer, default=0, nullable=False)
+    other_packets = Column(Integer, default=0, nullable=False)
+    duration_seconds = Column(Float, default=0.0, nullable=False)
+    capture_start_time = Column(Float, nullable=True)
+    capture_end_time = Column(Float, nullable=True)
+    detected_protocols = Column(Text, nullable=True)  # JSON-encoded array of distinct protocols
+
     # Relationships
     pcap_file = relationship("PcapFile", back_populates="jobs")
+    packets = relationship("PacketMetadata", back_populates="job", cascade="all, delete-orphan")

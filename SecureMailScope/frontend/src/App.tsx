@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { HealthCard } from './components/HealthCard';
 import { PcapUploadCard } from './components/PcapUploadCard';
 import { JobsTable } from './components/JobsTable';
+import { PacketsModal } from './components/PacketsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -20,6 +21,7 @@ export const App: React.FC = () => {
   const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
   const [info, setInfo] = useState<InfoResponse | null>(null);
   const [jobs, setJobs] = useState<AnalysisJob[]>([]);
+  const [selectedJob, setSelectedJob] = useState<AnalysisJob | null>(null);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingHealth, setLoadingHealth] = useState<boolean>(true);
@@ -77,7 +79,7 @@ export const App: React.FC = () => {
             </h1>
             <p className="mt-3 text-base text-slate-300 leading-relaxed">
               Passive email cryptographic forensics platform analyzing SMTP, IMAP, and POP3 network traffic.
-              Stage 01 enables secure PCAP/PCAPNG capture ingestion, SHA-256 integrity verification, safe storage, and analysis job tracking.
+              Stage 02 adds automated packet extraction, IP & TCP metadata decoding, conversation stream tracking, and frame-level forensic exploration.
             </p>
           </div>
         </div>
@@ -101,6 +103,7 @@ export const App: React.FC = () => {
           jobs={jobs}
           loading={loadingJobs}
           onRefresh={loadJobs}
+          onInspectJob={(job) => setSelectedJob(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -129,16 +132,24 @@ export const App: React.FC = () => {
             <div className="p-2.5 w-fit rounded-lg bg-purple-950 text-purple-400 mb-3 border border-purple-800/40">
               <HardDrive className="h-5 w-5" />
             </div>
-            <h3 className="font-semibold text-slate-200 text-sm">Safe Ingestion Architecture</h3>
+            <h3 className="font-semibold text-slate-200 text-sm">Forensic Metadata Engine</h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Untrusted input sandboxing: streaming size limits, magic-byte header sniffing, SHA-256 fingerprinting, and path traversal prevention.
+              High-throughput packet parsing, frame indexing, conversation stream isolation, and non-destructive payload inspection.
             </p>
           </div>
         </div>
+
+        {/* Packet Inspection Modal */}
+        {selectedJob && (
+          <PacketsModal
+            job={selectedJob}
+            onClose={() => setSelectedJob(null)}
+          />
+        )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 01 PCAP Upload & Jobs &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 02 PCAP Processing &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

@@ -1,14 +1,24 @@
-import React from 'react';
-import { AnalysisJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode } from 'lucide-react';
+import React, { useState } from 'react';
+import { AnalysisJob, processJob } from '../services/api';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
   loading: boolean;
   onRefresh: () => void;
+  onInspectJob: (job: AnalysisJob) => void;
 }
 
-export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh }) => {
+export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh, onInspectJob }) => {
+  const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const handleProcess = async (jobId: string) => {
+    setProcessingId(jobId);
+    await processJob(jobId);
+    setProcessingId(null);
+    onRefresh();
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status.toUpperCase()) {
       case 'QUEUED':
@@ -84,9 +94,10 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh }
                 <th className="py-2.5 px-3">Filename</th>
                 <th className="py-2.5 px-3">Size</th>
                 <th className="py-2.5 px-3">Format</th>
-                <th className="py-2.5 px-3">SHA-256 Digest</th>
+                <th className="py-2.5 px-3">Frames</th>
                 <th className="py-2.5 px-3">Status</th>
                 <th className="py-2.5 px-3">Created</th>
+                <th className="py-2.5 px-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -108,14 +119,40 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onRefresh }
                       {job.pcap_file?.file_format || 'pcap'}
                     </span>
                   </td>
-                  <td className="py-3 px-3 text-slate-400 truncate max-w-[140px]" title={job.pcap_file?.sha256}>
-                    {job.pcap_file?.sha256 ? `${job.pcap_file.sha256.slice(0, 12)}...` : '—'}
+                  <td className="py-3 px-3">
+                    {job.total_packets !== undefined && job.total_packets > 0 ? (
+                      <span className="text-emerald-400 font-semibold">{job.total_packets} pkts</span>
+                    ) : (
+                      <span className="text-slate-500">—</span>
+                    )}
                   </td>
                   <td className="py-3 px-3 font-sans">
                     {getStatusBadge(job.status)}
                   </td>
                   <td className="py-3 px-3 text-slate-400 font-sans whitespace-nowrap">
                     {new Date(job.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </td>
+                  <td className="py-3 px-3 text-right font-sans">
+                    {job.status === 'QUEUED' || job.status === 'PENDING' ? (
+                      <button
+                        onClick={() => handleProcess(job.id)}
+                        disabled={processingId === job.id}
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-[11px] font-medium transition-colors"
+                      >
+                        <Play className={`h-3 w-3 ${processingId === job.id ? 'animate-spin' : ''}`} />
+                        <span>{processingId === job.id ? 'Processing...' : 'Process PCAP'}</span>
+                      </button>
+                    ) : job.status === 'COMPLETED' ? (
+                      <button
+                        onClick={() => onInspectJob(job)}
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-medium transition-colors"
+                      >
+                        <Eye className="h-3 w-3 text-emerald-400" />
+                        <span>Inspect Frames</span>
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-slate-500">Failed</span>
+                    )}
                   </td>
                 </tr>
               ))}

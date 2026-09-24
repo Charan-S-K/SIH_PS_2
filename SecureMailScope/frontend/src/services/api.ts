@@ -60,6 +60,12 @@ export interface AnalysisJob {
   progress_percent: number;
   stage_message: string;
   error_message?: string | null;
+  total_packets?: number;
+  tcp_packets?: number;
+  udp_packets?: number;
+  other_packets?: number;
+  duration_seconds?: number;
+  detected_protocols?: string | null;
   created_at: string;
   updated_at: string;
   completed_at?: string | null;
@@ -71,6 +77,47 @@ export interface JobListResponse {
   limit: number;
   offset: number;
   jobs: AnalysisJob[];
+}
+
+export interface PacketItem {
+  id: string;
+  frame_number: number;
+  timestamp: number;
+  frame_length: number;
+  ip_version: number;
+  src_ip?: string | null;
+  dst_ip?: string | null;
+  transport_protocol: string;
+  src_port?: number | null;
+  dst_port?: number | null;
+  detected_protocol: string;
+  tcp_stream?: number | null;
+  tcp_seq?: number | null;
+  tcp_ack?: number | null;
+  tcp_flags?: string | null;
+  payload_size: number;
+  payload_preview?: string | null;
+}
+
+export interface PacketListResponse {
+  total: number;
+  limit: number;
+  offset: number;
+  packets: PacketItem[];
+}
+
+export interface CaptureSummary {
+  job_id: string;
+  status: string;
+  total_packets: number;
+  tcp_packets: number;
+  udp_packets: number;
+  other_packets: number;
+  duration_seconds: number;
+  capture_start_time?: number | null;
+  capture_end_time?: number | null;
+  detected_protocols: string[];
+  distinct_conversations: number;
 }
 
 const API_BASE = '/api/v1';
@@ -158,9 +205,40 @@ export async function listJobs(limit: number = 20, offset: number = 0): Promise<
   }
 }
 
-export async function getJobDetails(jobId: string): Promise<{ data: AnalysisJob | null; error: string | null }> {
+export async function processJob(jobId: string): Promise<{ data: AnalysisJob | null; error: string | null }> {
   try {
-    const res = await fetch(`${API_BASE}/jobs/${jobId}`, {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/process`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    const body = await res.json();
+    if (!res.ok) {
+      return { data: null, error: body.detail || `Processing failed with HTTP ${res.status}` };
+    }
+    return { data: body, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Network error while triggering processing' };
+  }
+}
+
+export async function fetchJobPackets(
+  jobId: string,
+  limit: number = 50,
+  offset: number = 0,
+  protocol?: string,
+  port?: number,
+  tcpStream?: number
+): Promise<{ data: PacketListResponse | null; error: string | null }> {
+  try {
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      offset: offset.toString(),
+    });
+    if (protocol) params.append('protocol', protocol);
+    if (port !== undefined) params.append('port', port.toString());
+    if (tcpStream !== undefined) params.append('tcp_stream', tcpStream.toString());
+
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/packets?${params.toString()}`, {
       headers: { 'Accept': 'application/json' },
     });
     if (!res.ok) {
@@ -169,6 +247,21 @@ export async function getJobDetails(jobId: string): Promise<{ data: AnalysisJob 
     const data = await res.json();
     return { data, error: null };
   } catch (err: any) {
-    return { data: null, error: err.message || 'Failed to fetch job status' };
+    return { data: null, error: err.message || 'Failed to fetch packet metadata' };
+  }
+}
+
+export async function fetchJobSummary(jobId: string): Promise<{ data: CaptureSummary | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/summary`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch capture summary' };
   }
 }
