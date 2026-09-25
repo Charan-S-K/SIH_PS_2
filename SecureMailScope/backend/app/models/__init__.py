@@ -10,6 +10,7 @@ from app.models.email_analysis import EmailSessionAnalysis
 from app.models.starttls import StarttlsAnalysis
 from app.models.tls_handshake import TlsHandshakeAnalysis
 from app.models.certificate import X509CertificateAnalysis
+from app.models.rule_result import CryptoRuleResult
 
 __all__ = [
     "Base",
@@ -23,6 +24,7 @@ __all__ = [
     "StarttlsAnalysis",
     "TlsHandshakeAnalysis",
     "X509CertificateAnalysis",
+    "CryptoRuleResult",
 ]
 
 

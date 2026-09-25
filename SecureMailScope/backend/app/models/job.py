@@ -40,6 +40,7 @@ class AnalysisJob(Base, TimestampMixin):
     starttls_analyses = relationship("StarttlsAnalysis", back_populates="job", cascade="all, delete-orphan")
     tls_handshakes = relationship("TlsHandshakeAnalysis", back_populates="job", cascade="all, delete-orphan")
     certificates = relationship("X509CertificateAnalysis", back_populates="job", cascade="all, delete-orphan")
+    crypto_findings = relationship("CryptoRuleResult", back_populates="job", cascade="all, delete-orphan")
 
 
 

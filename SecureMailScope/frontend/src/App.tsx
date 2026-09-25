@@ -10,6 +10,7 @@ import { EmailAnalysisModal } from './components/EmailAnalysisModal';
 import { StarttlsModal } from './components/StarttlsModal';
 import { TlsHandshakeModal } from './components/TlsHandshakeModal';
 import { CertificateModal } from './components/CertificateModal';
+import { CryptoFindingsModal } from './components/CryptoFindingsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
   const [selectedJobForStarttls, setSelectedJobForStarttls] = useState<AnalysisJob | null>(null);
   const [selectedJobForTlsHandshakes, setSelectedJobForTlsHandshakes] = useState<AnalysisJob | null>(null);
   const [selectedJobForCertificates, setSelectedJobForCertificates] = useState<AnalysisJob | null>(null);
+  const [selectedJobForCryptoFindings, setSelectedJobForCryptoFindings] = useState<AnalysisJob | null>(null);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -127,6 +129,7 @@ export const App: React.FC = () => {
           onViewStarttls={(job) => setSelectedJobForStarttls(job)}
           onViewTlsHandshakes={(job) => setSelectedJobForTlsHandshakes(job)}
           onViewCertificates={(job) => setSelectedJobForCertificates(job)}
+          onViewCryptoFindings={(job) => setSelectedJobForCryptoFindings(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -258,6 +261,22 @@ export const App: React.FC = () => {
             onInspectPackets={(streamId) => {
               const job = selectedJobForCertificates;
               setSelectedJobForCertificates(null);
+              setTargetStreamId(streamId);
+              setSelectedJob(job);
+            }}
+          />
+        )}
+
+        {/* Cryptographic Rules Engine Findings Modal */}
+        {selectedJobForCryptoFindings && (
+          <CryptoFindingsModal
+            jobId={selectedJobForCryptoFindings.id}
+            filename={selectedJobForCryptoFindings.pcap_file?.original_filename || 'capture.pcap'}
+            isOpen={true}
+            onClose={() => setSelectedJobForCryptoFindings(null)}
+            onInspectPackets={(streamId) => {
+              const job = selectedJobForCryptoFindings;
+              setSelectedJobForCryptoFindings(null);
               setTargetStreamId(streamId);
               setSelectedJob(job);
             }}

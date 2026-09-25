@@ -886,5 +886,117 @@ export async function analyzeJobCertificates(jobId: string): Promise<{ data: X50
   }
 }
 
+// ---------------------------------------------------------
+// Stage 09: Cryptographic Rules Engine Interfaces & APIs
+// ---------------------------------------------------------
+
+export interface CryptoFinding {
+  id: string;
+  job_id: string;
+  tcp_session_id?: string | null;
+  tcp_stream?: number | null;
+  rule_id: string;
+  name: string;
+  category: 'TLS_PROTOCOL' | 'CIPHER_SUITE' | 'CERTIFICATE' | 'PROTOCOL_BEHAVIOR' | 'STARTTLS' | 'EVIDENCE' | string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO' | string;
+  reason: string;
+  confidence: number;
+  confidence_label: 'HIGH' | 'MEDIUM' | 'LOW' | string;
+  evidence?: Record<string, any> | null;
+  remediation?: string | null;
+  created_at: string;
+}
+
+export interface JobFindingsSummary {
+  job_id: string;
+  total_findings: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  info_count: number;
+  category_counts: Record<string, number>;
+  rules_triggered_count: number;
+  evaluated_at: string;
+}
+
+export interface CryptoFindingsListResponse {
+  job_id: string;
+  summary: JobFindingsSummary;
+  findings: CryptoFinding[];
+}
+
+export interface CryptoRuleDefinition {
+  id: string;
+  name: string;
+  category: string;
+  severity: string;
+  description: string;
+  remediation: string;
+  default_confidence: number;
+}
+
+export async function fetchJobCryptoFindings(
+  jobId: string,
+  severity?: string,
+  category?: string
+): Promise<{ data: CryptoFindingsListResponse | null; error: string | null }> {
+  try {
+    const query = new URLSearchParams();
+    if (severity) query.append('severity', severity);
+    if (category) query.append('category', category);
+    const url = `${API_BASE}/jobs/${jobId}/crypto-findings${query.toString() ? `?${query.toString()}` : ''}`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch cryptographic findings` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch cryptographic findings' };
+  }
+}
+
+export async function evaluateJobRules(
+  jobId: string,
+  forceReevaluate: boolean = true
+): Promise<{ data: CryptoFindingsListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/evaluate-rules`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ force_reevaluate: forceReevaluate }),
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to evaluate rules` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to evaluate rules' };
+  }
+}
+
+export async function fetchRulesDefinitions(): Promise<{ data: CryptoRuleDefinition[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/rules`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch rules definitions` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch rules definitions' };
+  }
+}
+
+
 
 

@@ -13,6 +13,7 @@ interface JobsTableProps {
   onViewStarttls?: (job: AnalysisJob) => void;
   onViewTlsHandshakes?: (job: AnalysisJob) => void;
   onViewCertificates?: (job: AnalysisJob) => void;
+  onViewCryptoFindings?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -26,6 +27,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onViewStarttls,
   onViewTlsHandshakes,
   onViewCertificates,
+  onViewCryptoFindings,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -220,6 +222,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <Lock className="h-3 w-3 text-teal-400" />
                             <span>Certs</span>
+                          </button>
+                        )}
+                        {onViewCryptoFindings && (
+                          <button
+                            onClick={() => onViewCryptoFindings(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700/60 text-[11px] font-medium transition-colors"
+                            title="View Cryptographic Rules Engine Findings"
+                          >
+                            <ShieldCheck className="h-3 w-3 text-purple-400" />
+                            <span>Crypto Rules</span>
                           </button>
                         )}
                         <button

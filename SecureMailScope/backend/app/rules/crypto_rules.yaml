@@ -1,0 +1,146 @@
+# Cryptographic Rules Engine Configuration (YAML)
+# Configurable security rules for passive email security posture assessment.
+
+version: "1.0"
+rules:
+  # --- TLS Protocol Version Rules ---
+  - id: "RULE-TLS-001"
+    name: "Deprecated TLS Protocol Version (SSLv2 / SSLv3)"
+    category: "TLS_PROTOCOL"
+    severity: "CRITICAL"
+    description: "SSLv2 and SSLv3 protocols are obsolete, insecure, and vulnerable to POODLE, DROWN, and key extraction attacks."
+    remediation: "Disable SSLv2 and SSLv3 on all mail servers and clients immediately. Enforce TLS 1.2 or TLS 1.3 minimum."
+    default_confidence: 1.0
+
+  - id: "RULE-TLS-002"
+    name: "Deprecated TLS Protocol Version (TLS 1.0 / TLS 1.1)"
+    category: "TLS_PROTOCOL"
+    severity: "HIGH"
+    description: "TLS 1.0 and TLS 1.1 are deprecated by IETF RFC 8996 due to reliance on SHA-1/MD5 and CBC cipher vulnerabilities."
+    remediation: "Deprecate TLS 1.0 and TLS 1.1 in mail server configurations (Postfix, Dovecot, Exchange). Require TLS 1.2 or TLS 1.3."
+    default_confidence: 1.0
+
+  # --- Cipher Suite Rules ---
+  - id: "RULE-CIPHER-001"
+    name: "Insecure Cipher Suite (NULL / Anonymous / EXPORT / DES / RC4 / 3DES)"
+    category: "CIPHER_SUITE"
+    severity: "CRITICAL"
+    description: "Negotiated cipher suite provides zero encryption (NULL), no authentication (anon), or uses broken legacy ciphers (RC4, 3DES, DES, EXPORT)."
+    remediation: "Remove insecure cipher suites from server priority lists. Restrict allowed ciphers to modern AEAD suites (AES-GCM, CHACHA20-POLY1305)."
+    default_confidence: 1.0
+
+  - id: "RULE-CIPHER-002"
+    name: "Weak Cipher Suite (MD5 / SHA-1 MAC or Non-PFS Key Exchange)"
+    category: "CIPHER_SUITE"
+    severity: "HIGH"
+    description: "Cipher suite uses weak integrity MACs (MD5/SHA1), legacy CBC mode, or non-Forward-Secret RSA key exchange."
+    remediation: "Configure Perfect Forward Secrecy (ECDHE / DHE) with SHA-256 or SHA-384 MAC algorithms. Prefer TLS 1.3 AEAD ciphers."
+    default_confidence: 0.95
+
+  # --- Certificate Rules ---
+  - id: "RULE-CERT-001"
+    name: "Expired X.509 Certificate"
+    category: "CERTIFICATE"
+    severity: "HIGH"
+    description: "The presented X.509 server or client certificate has passed its validity expiration date."
+    remediation: "Renew the X.509 certificate immediately with a trusted Certificate Authority or ACME/Let's Encrypt."
+    default_confidence: 1.0
+
+  - id: "RULE-CERT-002"
+    name: "Not Yet Valid X.509 Certificate"
+    category: "CERTIFICATE"
+    severity: "HIGH"
+    description: "The presented certificate validity start time (NotBefore) is in the future relative to observation timestamp."
+    remediation: "Check server clock synchronization (NTP) and ensure valid certificate issuance timelines."
+    default_confidence: 1.0
+
+  - id: "RULE-CERT-003"
+    name: "Self-Signed Certificate in Trust Chain"
+    category: "CERTIFICATE"
+    severity: "MEDIUM"
+    description: "The certificate issuer matches its own subject (self-signed) and is not issued by a public/trusted enterprise CA."
+    remediation: "Replace self-signed certificates with certificates issued by a publicly trusted CA or properly deployed enterprise PKI CA."
+    default_confidence: 0.9
+
+  - id: "RULE-CERT-004"
+    name: "Weak Certificate Signature Algorithm (MD5 / SHA-1)"
+    category: "CERTIFICATE"
+    severity: "HIGH"
+    description: "The X.509 certificate was signed using a collision-vulnerable hash function (MD5 or SHA-1)."
+    remediation: "Reissue the certificate signed with SHA-256, SHA-384, or SHA-512."
+    default_confidence: 1.0
+
+  - id: "RULE-CERT-005"
+    name: "Weak RSA Key Length (< 2048 bits)"
+    category: "CERTIFICATE"
+    severity: "HIGH"
+    description: "The RSA public key size in the certificate is less than 2048 bits, making it vulnerable to prime factorization attacks."
+    remediation: "Generate new key pairs with RSA 2048-bit minimum (RSA 3072/4096 recommended) or NIST P-256 / Ed25519."
+    default_confidence: 1.0
+
+  - id: "RULE-CERT-006"
+    name: "Weak Elliptic Curve Key Length (< 256 bits)"
+    category: "CERTIFICATE"
+    severity: "HIGH"
+    description: "The Elliptic Curve (EC) public key size is less than 256 bits."
+    remediation: "Use standard curves with key length >= 256 bits (secp256r1 / secp384r1 / X25519)."
+    default_confidence: 1.0
+
+  - id: "RULE-CERT-007"
+    name: "Subject Alternative Name (SAN) Mismatch or Missing SAN"
+    category: "CERTIFICATE"
+    severity: "MEDIUM"
+    description: "The server hostname or IP address does not match any entry in the Subject Alternative Name (SAN) extension, or SAN is missing."
+    remediation: "Reissue certificate ensuring all server FQDNs and IP addresses are included in the Subject Alternative Name (SAN) extension."
+    default_confidence: 0.85
+
+  # --- Protocol & Authentication Behavior Rules ---
+  - id: "RULE-AUTH-001"
+    name: "Cleartext Credential Transmission over Unencrypted Channel"
+    category: "PROTOCOL_BEHAVIOR"
+    severity: "CRITICAL"
+    description: "User authentication credentials (passwords, AUTH LOGIN, AUTH PLAIN, USER/PASS) were observed in cleartext over non-TLS connections."
+    remediation: "Enforce TLS encryption prior to allowing authentication commands. Disable plain authentication over cleartext ports 25, 110, 143."
+    default_confidence: 1.0
+
+  - id: "RULE-AUTH-002"
+    name: "Insecure Authentication Mechanisms Offered Without TLS"
+    category: "PROTOCOL_BEHAVIOR"
+    severity: "HIGH"
+    description: "Mail server advertised plain/login authentication mechanisms on an unencrypted TCP stream."
+    remediation: "Configure mail servers to advertise AUTH only after STARTTLS or implicit TLS is established."
+    default_confidence: 0.95
+
+  # --- STARTTLS Rules ---
+  - id: "RULE-STARTTLS-001"
+    name: "STARTTLS Advertised But Not Negotiated (Plaintext Fallback)"
+    category: "STARTTLS"
+    severity: "HIGH"
+    description: "The server advertised STARTTLS capability, but the client opted not to issue STARTTLS and continued in cleartext."
+    remediation: "Configure mail clients and MTA peers to enforce mandatory TLS (Opportunistic TLS upgrade -> Strict TLS enforcement)."
+    default_confidence: 0.9
+
+  - id: "RULE-STARTTLS-002"
+    name: "STARTTLS Stripping Risk (Plaintext Auth After Failed STARTTLS)"
+    category: "STARTTLS"
+    severity: "CRITICAL"
+    description: "STARTTLS command failed or was stripped by a Man-in-the-Middle (MitM) actor, followed by cleartext email or credential transmission."
+    remediation: "Enable MTA-STS (RFC 8461) and DANE TLSA (RFC 6698) to enforce TLS negotiation and reject cleartext downgrades."
+    default_confidence: 0.95
+
+  - id: "RULE-STARTTLS-003"
+    name: "STARTTLS Command Execution Failed / Rejected"
+    category: "STARTTLS"
+    severity: "MEDIUM"
+    description: "The STARTTLS command resulted in a server error response (e.g. 454 TLS not available, 554 transaction failed)."
+    remediation: "Check server TLS configuration, certificate permissions, and crypto library initialization on the mail server."
+    default_confidence: 1.0
+
+  # --- Evidence & Missing Facts Rules ---
+  - id: "RULE-EVIDENCE-001"
+    name: "Insufficient Evidence for TLS Assessment"
+    category: "EVIDENCE"
+    severity: "INFO"
+    description: "Email protocol session was observed, but TLS handshake evidence was missing or incomplete in the passive packet capture."
+    remediation: "Ensure packet capture includes initial connection setup and complete handshake packet ranges."
+    default_confidence: 0.7

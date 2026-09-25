@@ -18,6 +18,7 @@ from app.models.email_analysis import EmailSessionAnalysis
 from app.models.starttls import StarttlsAnalysis
 from app.models.tls_handshake import TlsHandshakeAnalysis
 from app.models.certificate import X509CertificateAnalysis
+from app.models.rule_result import CryptoRuleResult
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
@@ -26,6 +27,12 @@ from app.schemas.email_analysis import EmailSessionAnalysisResponse, EmailSessio
 from app.schemas.starttls import StarttlsAnalysisResponse, StarttlsAnalysisListResponse
 from app.schemas.tls_handshake import TlsHandshakeAnalysisResponse, TlsHandshakeAnalysisListResponse
 from app.schemas.certificate import X509CertificateResponse, X509CertificateListResponse
+from app.schemas.rule_engine import (
+    CryptoFindingResponse,
+    CryptoFindingsListResponse,
+    CryptoRuleDefinition,
+    EvaluateRulesRequest,
+)
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
@@ -33,6 +40,7 @@ from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
 from app.services.starttls_analyzer import StarttlsAnalyzer
 from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
 from app.services.x509_analyzer import X509Analyzer
+from app.services.crypto_rules_engine import CryptographicRulesEngine
 
 
 logger = logging.getLogger(__name__)
@@ -811,6 +819,89 @@ def analyze_job_certificates(job_id: str, db: Session = Depends(get_db)) -> X509
         weak_signatures_count=weak_sigs_count,
         certificates=[X509CertificateResponse.model_validate(c) for c in certs]
     )
+
+
+# ---------------------------------------------------------
+# Stage 09: Cryptographic Rules Engine Endpoints
+# ---------------------------------------------------------
+
+@router.get(
+    "/{job_id}/crypto-findings",
+    response_model=CryptoFindingsListResponse,
+    summary="Get Cryptographic Security Findings for a job",
+    description="Retrieves security findings evaluated by the Cryptographic Rules Engine, with optional filtering by severity and category."
+)
+def get_job_crypto_findings(
+    job_id: str,
+    severity: Optional[str] = Query(default=None, description="Filter by severity: CRITICAL, HIGH, MEDIUM, LOW, INFO"),
+    category: Optional[str] = Query(default=None, description="Filter by category: TLS_PROTOCOL, CIPHER_SUITE, CERTIFICATE, PROTOCOL_BEHAVIOR, STARTTLS, EVIDENCE"),
+    db: Session = Depends(get_db)
+) -> CryptoFindingsListResponse:
+    """Fetch cryptographic rules engine findings and summary for a job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    engine = CryptographicRulesEngine()
+    summary, findings = engine.evaluate_job(db, job_id, force_reevaluate=False)
+
+    if severity:
+        findings = [f for f in findings if f.severity.upper() == severity.upper()]
+    if category:
+        findings = [f for f in findings if f.category.upper() == category.upper()]
+
+    return CryptoFindingsListResponse(
+        job_id=job.id,
+        summary=summary,
+        findings=[CryptoFindingResponse.model_validate(f) for f in findings]
+    )
+
+
+@router.post(
+    "/{job_id}/evaluate-rules",
+    response_model=CryptoFindingsListResponse,
+    summary="Run or re-evaluate Cryptographic Rules for a job",
+    description="Executes rule matching against all passive job evidence (TLS handshakes, certificates, STARTTLS, email sessions) and persists findings."
+)
+def evaluate_job_rules(
+    job_id: str,
+    payload: Optional[EvaluateRulesRequest] = None,
+    db: Session = Depends(get_db)
+) -> CryptoFindingsListResponse:
+    """Execute rule evaluation for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    force_reevaluate = payload.force_reevaluate if payload else True
+    custom_rules = payload.custom_rules if payload else None
+
+    engine = CryptographicRulesEngine()
+    try:
+        summary, findings = engine.evaluate_job(
+            db=db,
+            job_id=job_id,
+            force_reevaluate=force_reevaluate,
+            custom_rules=custom_rules
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Cryptographic rule evaluation failed: {str(exc)}"
+        )
+
+    return CryptoFindingsListResponse(
+        job_id=job.id,
+        summary=summary,
+        findings=[CryptoFindingResponse.model_validate(f) for f in findings]
+    )
+
 
 
 
