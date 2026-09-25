@@ -23,6 +23,7 @@ import {
   UnifiedFinding,
   FindingsSummary
 } from '../services/api';
+import { EvidenceChainModal } from './EvidenceChainModal';
 
 interface FindingsModalProps {
   jobId: string;
@@ -52,6 +53,7 @@ export const FindingsModal: React.FC<FindingsModalProps> = ({
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [duplicateFilter, setDuplicateFilter] = useState<string>('UNIQUE'); // 'ALL' | 'UNIQUE' | 'DUPLICATES'
   const [expandedFindingId, setExpandedFindingId] = useState<string | null>(null);
+  const [selectedFindingForEvidenceId, setSelectedFindingForEvidenceId] = useState<string | null>(null);
 
   const loadFindings = useCallback(async () => {
     setLoading(true);
@@ -471,9 +473,17 @@ export const FindingsModal: React.FC<FindingsModalProps> = ({
                           )}
                         </div>
 
-                        {/* Stream Inspection Link */}
-                        {finding.tcp_stream !== null && finding.tcp_stream !== undefined && onInspectPackets && (
-                          <div className="flex justify-end pt-1">
+                        {/* Evidence Action Buttons */}
+                        <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+                          <button
+                            onClick={() => setSelectedFindingForEvidenceId(finding.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700/60 rounded-lg transition-colors"
+                          >
+                            <FileCode className="w-3.5 h-3.5 text-purple-400" />
+                            View Evidence Chain & Provenance (Stage 11)
+                          </button>
+
+                          {finding.tcp_stream !== null && finding.tcp_stream !== undefined && onInspectPackets && (
                             <button
                               onClick={() => {
                                 onInspectPackets(finding.tcp_stream!);
@@ -484,8 +494,8 @@ export const FindingsModal: React.FC<FindingsModalProps> = ({
                               <ExternalLink className="w-3.5 h-3.5" />
                               Inspect TCP Stream #{finding.tcp_stream} Packets
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -495,6 +505,17 @@ export const FindingsModal: React.FC<FindingsModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Stage 11: Evidence Chain & Provenance Modal */}
+      {selectedFindingForEvidenceId && (
+        <EvidenceChainModal
+          jobId={jobId}
+          findingId={selectedFindingForEvidenceId}
+          isOpen={true}
+          onClose={() => setSelectedFindingForEvidenceId(null)}
+          onInspectPackets={onInspectPackets}
+        />
+      )}
     </div>
   );
 };

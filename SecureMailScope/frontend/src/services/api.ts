@@ -1110,6 +1110,98 @@ export async function fetchJobFindingsSummary(
   }
 }
 
+// ---------------------------------------------------------
+// Stage 11: Evidence Engine Interfaces & APIs
+// ---------------------------------------------------------
+
+export interface PacketEvidenceItem {
+  frame_number: number;
+  timestamp: number;
+  src_ip: string;
+  dst_ip: string;
+  src_port: number;
+  dst_port: number;
+  detected_protocol?: string | null;
+  length_bytes: number;
+  summary?: string | null;
+}
+
+export interface FieldEvidenceItem {
+  field_name: string;
+  observed_value?: any;
+  is_present: boolean;
+  source_stage: string;
+  description?: string | null;
+}
+
+export interface ForensicEvidenceChain {
+  finding_id: string;
+  job_id: string;
+  tcp_session_id?: string | null;
+  tcp_stream?: number | null;
+  rule_id?: string | null;
+  finding_title: string;
+  finding_type: string;
+  severity: string;
+  confidence: number;
+  confidence_label: string;
+  evidence_status: 'COMPLETE_EVIDENCE' | 'PARTIAL_EVIDENCE' | 'INSUFFICIENT_EVIDENCE' | string;
+  session_evidence?: Record<string, any> | null;
+  packet_range?: Record<string, any> | null;
+  sample_packets: PacketEvidenceItem[];
+  field_evidence: FieldEvidenceItem[];
+  missing_evidence_reasons: string[];
+  traceability_provenance: Record<string, any>;
+  remediation?: string | null;
+  generated_at: string;
+}
+
+export interface JobEvidenceSummary {
+  job_id: string;
+  total_findings: number;
+  complete_evidence_count: number;
+  partial_evidence_count: number;
+  insufficient_evidence_count: number;
+  provenance_stages_active: string[];
+  evaluated_at: string;
+}
+
+export async function fetchFindingEvidenceChain(
+  jobId: string,
+  findingId: string
+): Promise<{ data: ForensicEvidenceChain | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/findings/${findingId}/evidence`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch forensic evidence chain` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch forensic evidence chain' };
+  }
+}
+
+export async function fetchJobEvidenceSummary(
+  jobId: string
+): Promise<{ data: JobEvidenceSummary | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/evidence-summary`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch job evidence summary` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch job evidence summary' };
+  }
+}
+
+
 
 
 

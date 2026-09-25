@@ -40,6 +40,10 @@ from app.schemas.finding import (
     UnifiedFindingsListResponse,
     ConsolidateFindingsRequest,
 )
+from app.schemas.evidence import (
+    ForensicEvidenceChain,
+    JobEvidenceSummaryResponse,
+)
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
@@ -49,6 +53,7 @@ from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
 from app.services.x509_analyzer import X509Analyzer
 from app.services.crypto_rules_engine import CryptographicRulesEngine
 from app.services.findings_service import FindingsService
+from app.services.evidence_engine import EvidenceEngine
 
 
 logger = logging.getLogger(__name__)
@@ -1018,6 +1023,77 @@ def get_job_findings_summary(
     service = FindingsService()
     summary, _ = service.consolidate_job_findings(db, job_id, force_refresh=False)
     return summary
+
+
+# ---------------------------------------------------------
+# Stage 11: Evidence Engine Endpoints
+# ---------------------------------------------------------
+
+@router.get(
+    "/{job_id}/findings/{finding_id}/evidence",
+    response_model=ForensicEvidenceChain,
+    summary="Get complete forensic evidence chain for a finding",
+    description="Retrieves full trace linking Finding -> Rule -> TCP Session -> Packet Range -> Observed Fields, explicitly indicating missing facts without fabrication."
+)
+def get_finding_evidence_chain(
+    job_id: str,
+    finding_id: str,
+    db: Session = Depends(get_db)
+) -> ForensicEvidenceChain:
+    """Fetch complete forensic evidence chain for a single unified finding."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    engine = EvidenceEngine()
+    try:
+        chain = engine.build_finding_evidence_chain(db, finding_id)
+    except ValueError as val_err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(val_err)
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to assemble forensic evidence chain: {str(exc)}"
+        )
+
+    return chain
+
+
+@router.get(
+    "/{job_id}/evidence-summary",
+    response_model=JobEvidenceSummaryResponse,
+    summary="Get job-level evidence completeness summary",
+    description="Retrieves aggregate metrics on complete, partial, and insufficient evidence counts across all findings."
+)
+def get_job_evidence_summary(
+    job_id: str,
+    db: Session = Depends(get_db)
+) -> JobEvidenceSummaryResponse:
+    """Fetch job-level evidence completeness metrics."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    engine = EvidenceEngine()
+    try:
+        summary = engine.build_job_evidence_summary(db, job_id)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate evidence summary: {str(exc)}"
+        )
+
+    return summary
+
 
 
 
