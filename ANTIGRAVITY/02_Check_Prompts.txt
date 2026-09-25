@@ -1,0 +1,1197 @@
+SECUREMAILSCOPE — REVIEW-ONLY STAGE CHECK PROMPTS
+===============================================
+
+These prompts are for verification only.
+The reviewer must NOT modify source code, commit, push, merge, or fix anything.
+Inspect repository, branch diff, source, tests, configuration, and runtime behavior.
+Return PASS / PASS WITH ISSUES / FAIL and explain every issue with severity and location.
+The report must be suitable for copying into the local check-report file.
+
+
+CHECK STAGE 00 — foundation
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Foundation: create the project skeleton, FastAPI backend, React/Vite frontend, PostgreSQL connection, Docker Compose skeleton, environment handling, health endpoints, basic frontend-backend connectivity, and initial tests. Do not implement later-stage PCAP, security, or ML features.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 01 — pcap-upload-jobs
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+PCAP Upload & Jobs: secure PCAP/PCAPNG upload, file validation/size limits, SHA-256 hashing, safe storage, analysis-job records, upload/status APIs, and tests. Do not implement packet analysis.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 02 — pcap-processing
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+PCAP Processing: add TShark/PyShark processing, packet metadata extraction, basic protocol fields, invalid/corrupt PCAP handling, persistence, APIs, and tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 03 — protocol-identification
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Protocol Identification: identify SMTP/IMAP/POP3 using TShark fields plus protocol behavior/signatures, not ports alone. Return confidence and evidence. Add positive, negative, and unknown tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 04 — tcp-session-reconstruction
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+TCP Session Reconstruction: reconstruct TCP conversations using sequence information, handle practical reordering/retransmission cases, create bidirectional streams, session metadata, and packet-range evidence. Add deterministic tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 05 — email-protocol-analysis
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Email Protocol Analysis: add SMTP/IMAP/POP3 session analysis and events such as EHLO/HELO, STARTTLS, AUTH, CAPABILITY, STLS, LOGIN/AUTHENTICATE. Do not implement the full TLS security engine yet.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 06 — starttls-analysis
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+STARTTLS Analysis: detect STARTTLS/STLS advertisement, request, upgrade, failure, non-upgrade, and suspicious cleartext authentication after TLS was available. Preserve packet/session evidence and add tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 07 — tls-handshake-analysis
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+TLS Handshake Analysis: reconstruct observable TLS handshakes and extract TLS version, cipher suite, key-exchange/signature information, extensions/groups where available, and handshake evidence. Use UNKNOWN when evidence is unavailable; never guess.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 08 — x509-certificate-analysis
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+X.509 Certificate Analysis: use Python cryptography to extract and analyze validity, issuer/subject, SAN, public-key algorithm/size, signature algorithm, self-signed status, and chain information when observable. Handle incomplete evidence explicitly.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 09 — cryptographic-rules-engine
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Cryptographic Rules Engine: implement configurable YAML/JSON rules for deprecated TLS, weak/deprecated ciphers, certificate issues, weak keys/signatures, insecure protocol behavior, STARTTLS issues, and other PS-required findings. Each rule produces severity, reason, evidence reference, confidence, and remediation metadata.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 10 — findings-model
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Findings Model: create a unified finding schema/API containing type, severity, title, reason, confidence, analysis/session references, evidence references, rule ID, and remediation placeholder. Add correlation/deduplication and tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 11 — evidence-engine
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Evidence Engine: link finding -> session -> packet range -> protocol/TLS/certificate field -> rule. Add retrieval APIs. Prove through tests that missing source evidence becomes UNKNOWN/INSUFFICIENT_EVIDENCE rather than invented facts.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 12 — security-posture
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Security Posture: implement explainable session/server/analysis-level LOW/MEDIUM/HIGH/CRITICAL posture aggregation based on validated findings, confidence, and documented scoring logic. Show contributing findings and rationale.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 13 — ml-dataset-generator
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+ML Dataset Generator: create a reproducible synthetic dataset using secure and intentionally weak SMTP/IMAP/POP3/TLS scenarios, capture PCAPs, extract features, label ground truth, and document how every label is produced.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 14 — ml-feature-pipeline
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+ML Feature Pipeline: implement versioned feature extraction from analyzed sessions using only observable, defensible features. Add preprocessing, feature schema, train/test split, and leakage checks.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 15 — ml-risk-classifier
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+ML Risk Classifier: start with an explainable scikit-learn model such as Random Forest. Train/evaluate on generated data, persist/version the model, expose prediction APIs, and report precision/recall/F1/confusion matrix. Do not replace deterministic security facts with ML.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 16 — tls-anomaly-detection
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+TLS Anomaly Detection: implement a lightweight unsupervised method such as Isolation Forest using defined normal-session data. Expose anomaly scores and calibrated thresholds. Clearly label anomalies as anomalous behavior, not proof of attack.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 17 — explainable-ai
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Explainable AI: add SHAP or another suitable feature-attribution method. Show top contributors with actual feature values and safe fallback when explanations are unavailable. Add tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 18 — prioritization
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Prioritization: implement transparent evidence-backed finding/session prioritization using severity, confidence, exposure indicators, affected sessions, and ML signals. Make ranking configurable and test it.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 19 — recommendations
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Recommendations: implement deterministic remediation recommendations tied to security rules. Never invent unsupported configuration details. Include rationale, affected component, recommended action, and triggering rule/evidence.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 20 — security-dashboard
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Security Dashboard: build React pages for upload, analysis overview, protocol distribution, sessions, findings, evidence explorer, TLS/certificate details, posture, ML/anomaly analysis, timeline, prioritization, and remediation. Keep it API-driven and test critical flows.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 21 — database-persistence-hardening
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Database & Persistence Hardening: finalize PostgreSQL schema, indexes, relationships, migrations, analysis state transitions, file metadata, evidence references, model metadata, report metadata, restart persistence, and integration tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 22 — dockerization
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Dockerization: create reproducible Docker Compose deployment for frontend, backend/analyzer, PostgreSQL, and TShark dependencies. Add health checks, environment variables, persistent volumes, resource limits, and non-root containers where practical.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 23 — deployment-packaging
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Deployment Packaging: make the system portable and easy to run offline. Provide Docker Compose instructions, .env.example, demo data, startup/health scripts, and README. Do not introduce paid cloud dependencies.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 24 — test-pcap-suite
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Test PCAP Suite: curate regression fixtures for secure, weak TLS, expired certificate, weak cipher, STARTTLS problems, incomplete evidence, mixed sessions, and anomalies. Define expected findings/outcomes.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 25 — validation-evaluation
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Validation & Evaluation: automate expected-vs-actual validation, ML precision/recall/F1 where applicable, false-positive rate, processing time, coverage, and evidence completeness. Produce an internal evaluation result.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 26 — security-hardening
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Security Hardening: secure uploads, path traversal, subprocess timeouts, safe TShark invocation, temporary-file cleanup, non-root containers, API validation, CORS, secret handling, dependency review, and security tests.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 27 — final-demo-dataset
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Final Demo Dataset: create one polished mixed PCAP/demo package with multiple known security conditions. Ensure automatic discovery and verifiable evidence for every highlighted finding. Add a deterministic demo reset process.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.
+
+
+CHECK STAGE 28 — final-integration-sih-demo
+========================
+Act as a strict senior software/cybersecurity reviewer.
+
+Stage requirements:
+Final Integration & SIH Demo: stabilize all stages, run the full test suite, fix regressions, verify clean Docker deployment, verify JSON/HTML/PDF exports and dashboard flows, and prepare a deterministic 3–5 minute SIH demo. Do not add speculative features.
+
+Check:
+- completeness and correctness
+- integration with previous stages
+- edge/error handling
+- security and forensic correctness
+- evidence traceability
+- tests and test quality
+- no fabricated facts
+- no secrets/generated artifacts
+- no regressions
+- free/local deployment compatibility
+- code quality and maintainability
+
+For every issue provide:
+Severity: BLOCKER/HIGH/MEDIUM/LOW
+Location: file/function/component
+Problem:
+Why it matters:
+Recommended fix (high-level only):
+
+Final format:
+VERDICT: PASS / PASS WITH ISSUES / FAIL
+Correct:
+Issues:
+Tests observed:
+Missing tests:
+Security concerns:
+Deployment concerns:
+Recommended fixes:
+READY TO COMMIT: YES/NO
+
+Do not modify anything. Stop after review.

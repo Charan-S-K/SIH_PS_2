@@ -1,0 +1,486 @@
+SECUREMAILSCOPE — ANTIGRAVITY IMPLEMENTATION PROMPTS
+
+GLOBAL ANTIGRAVITY RULES
+==========================
+- Read the existing repository before changing anything.
+- Create the current stage branch BEFORE implementation:
+  feature/stage-XX-short-name
+- If there are uncommitted user changes, do not overwrite them; stop and report.
+- Implement ONLY the requested stage.
+- Do not silently implement future stages.
+- Preserve working previous-stage behavior.
+- Add tests for normal, edge, invalid, and insufficient-evidence cases.
+- Treat PCAPs as untrusted input.
+- Never invent packet/TLS/certificate/crypto facts; use UNKNOWN when evidence is unavailable.
+- Use free/open-source and locally deployable components.
+- Never hard-code secrets or credentials.
+- Review git diff/status before stopping.
+- DO NOT git commit.
+- DO NOT git push.
+- DO NOT merge.
+- At completion, report files changed, tests/checks, limitations, branch name, and manual verification commands.
+- STOP and ask me to review, then commit and push manually.
+
+
+STAGE 00 — foundation
+====================
+Task:
+Foundation: create the project skeleton, FastAPI backend, React/Vite frontend, PostgreSQL connection, Docker Compose skeleton, environment handling, health endpoints, basic frontend-backend connectivity, and initial tests. Do not implement later-stage PCAP, security, or ML features.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 01 — pcap-upload-jobs
+====================
+Task:
+PCAP Upload & Jobs: secure PCAP/PCAPNG upload, file validation/size limits, SHA-256 hashing, safe storage, analysis-job records, upload/status APIs, and tests. Do not implement packet analysis.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 02 — pcap-processing
+====================
+Task:
+PCAP Processing: add TShark/PyShark processing, packet metadata extraction, basic protocol fields, invalid/corrupt PCAP handling, persistence, APIs, and tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 03 — protocol-identification
+====================
+Task:
+Protocol Identification: identify SMTP/IMAP/POP3 using TShark fields plus protocol behavior/signatures, not ports alone. Return confidence and evidence. Add positive, negative, and unknown tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 04 — tcp-session-reconstruction
+====================
+Task:
+TCP Session Reconstruction: reconstruct TCP conversations using sequence information, handle practical reordering/retransmission cases, create bidirectional streams, session metadata, and packet-range evidence. Add deterministic tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 05 — email-protocol-analysis
+====================
+Task:
+Email Protocol Analysis: add SMTP/IMAP/POP3 session analysis and events such as EHLO/HELO, STARTTLS, AUTH, CAPABILITY, STLS, LOGIN/AUTHENTICATE. Do not implement the full TLS security engine yet.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 06 — starttls-analysis
+====================
+Task:
+STARTTLS Analysis: detect STARTTLS/STLS advertisement, request, upgrade, failure, non-upgrade, and suspicious cleartext authentication after TLS was available. Preserve packet/session evidence and add tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 07 — tls-handshake-analysis
+====================
+Task:
+TLS Handshake Analysis: reconstruct observable TLS handshakes and extract TLS version, cipher suite, key-exchange/signature information, extensions/groups where available, and handshake evidence. Use UNKNOWN when evidence is unavailable; never guess.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 08 — x509-certificate-analysis
+====================
+Task:
+X.509 Certificate Analysis: use Python cryptography to extract and analyze validity, issuer/subject, SAN, public-key algorithm/size, signature algorithm, self-signed status, and chain information when observable. Handle incomplete evidence explicitly.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 09 — cryptographic-rules-engine
+====================
+Task:
+Cryptographic Rules Engine: implement configurable YAML/JSON rules for deprecated TLS, weak/deprecated ciphers, certificate issues, weak keys/signatures, insecure protocol behavior, STARTTLS issues, and other PS-required findings. Each rule produces severity, reason, evidence reference, confidence, and remediation metadata.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 10 — findings-model
+====================
+Task:
+Findings Model: create a unified finding schema/API containing type, severity, title, reason, confidence, analysis/session references, evidence references, rule ID, and remediation placeholder. Add correlation/deduplication and tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 11 — evidence-engine
+====================
+Task:
+Evidence Engine: link finding -> session -> packet range -> protocol/TLS/certificate field -> rule. Add retrieval APIs. Prove through tests that missing source evidence becomes UNKNOWN/INSUFFICIENT_EVIDENCE rather than invented facts.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 12 — security-posture
+====================
+Task:
+Security Posture: implement explainable session/server/analysis-level LOW/MEDIUM/HIGH/CRITICAL posture aggregation based on validated findings, confidence, and documented scoring logic. Show contributing findings and rationale.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 13 — ml-dataset-generator
+====================
+Task:
+ML Dataset Generator: create a reproducible synthetic dataset using secure and intentionally weak SMTP/IMAP/POP3/TLS scenarios, capture PCAPs, extract features, label ground truth, and document how every label is produced.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 14 — ml-feature-pipeline
+====================
+Task:
+ML Feature Pipeline: implement versioned feature extraction from analyzed sessions using only observable, defensible features. Add preprocessing, feature schema, train/test split, and leakage checks.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 15 — ml-risk-classifier
+====================
+Task:
+ML Risk Classifier: start with an explainable scikit-learn model such as Random Forest. Train/evaluate on generated data, persist/version the model, expose prediction APIs, and report precision/recall/F1/confusion matrix. Do not replace deterministic security facts with ML.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 16 — tls-anomaly-detection
+====================
+Task:
+TLS Anomaly Detection: implement a lightweight unsupervised method such as Isolation Forest using defined normal-session data. Expose anomaly scores and calibrated thresholds. Clearly label anomalies as anomalous behavior, not proof of attack.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 17 — explainable-ai
+====================
+Task:
+Explainable AI: add SHAP or another suitable feature-attribution method. Show top contributors with actual feature values and safe fallback when explanations are unavailable. Add tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 18 — prioritization
+====================
+Task:
+Prioritization: implement transparent evidence-backed finding/session prioritization using severity, confidence, exposure indicators, affected sessions, and ML signals. Make ranking configurable and test it.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 19 — recommendations
+====================
+Task:
+Recommendations: implement deterministic remediation recommendations tied to security rules. Never invent unsupported configuration details. Include rationale, affected component, recommended action, and triggering rule/evidence.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 20 — security-dashboard
+====================
+Task:
+Security Dashboard: build React pages for upload, analysis overview, protocol distribution, sessions, findings, evidence explorer, TLS/certificate details, posture, ML/anomaly analysis, timeline, prioritization, and remediation. Keep it API-driven and test critical flows.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 21 — database-persistence-hardening
+====================
+Task:
+Database & Persistence Hardening: finalize PostgreSQL schema, indexes, relationships, migrations, analysis state transitions, file metadata, evidence references, model metadata, report metadata, restart persistence, and integration tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 22 — dockerization
+====================
+Task:
+Dockerization: create reproducible Docker Compose deployment for frontend, backend/analyzer, PostgreSQL, and TShark dependencies. Add health checks, environment variables, persistent volumes, resource limits, and non-root containers where practical.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 23 — deployment-packaging
+====================
+Task:
+Deployment Packaging: make the system portable and easy to run offline. Provide Docker Compose instructions, .env.example, demo data, startup/health scripts, and README. Do not introduce paid cloud dependencies.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 24 — test-pcap-suite
+====================
+Task:
+Test PCAP Suite: curate regression fixtures for secure, weak TLS, expired certificate, weak cipher, STARTTLS problems, incomplete evidence, mixed sessions, and anomalies. Define expected findings/outcomes.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 25 — validation-evaluation
+====================
+Task:
+Validation & Evaluation: automate expected-vs-actual validation, ML precision/recall/F1 where applicable, false-positive rate, processing time, coverage, and evidence completeness. Produce an internal evaluation result.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 26 — security-hardening
+====================
+Task:
+Security Hardening: secure uploads, path traversal, subprocess timeouts, safe TShark invocation, temporary-file cleanup, non-root containers, API validation, CORS, secret handling, dependency review, and security tests.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 27 — final-demo-dataset
+====================
+Task:
+Final Demo Dataset: create one polished mixed PCAP/demo package with multiple known security conditions. Ensure automatic discovery and verifiable evidence for every highlighted finding. Add a deterministic demo reset process.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.
+
+
+STAGE 28 — final-integration-sih-demo
+====================
+Task:
+Final Integration & SIH Demo: stabilize all stages, run the full test suite, fix regressions, verify clean Docker deployment, verify JSON/HTML/PDF exports and dashboard flows, and prepare a deterministic 3–5 minute SIH demo. Do not add speculative features.
+
+Completion gate:
+1. Run stage tests.
+2. Run the existing full test suite when practical.
+3. Run build/lint/type checks where applicable.
+4. Review git diff/status.
+5. Confirm no secrets or generated artifacts are tracked.
+6. Confirm previous-stage behavior still works.
+7. Give a concise implementation report.
+8. STOP. Ask me to review, commit, and push. Do not do those actions yourself.

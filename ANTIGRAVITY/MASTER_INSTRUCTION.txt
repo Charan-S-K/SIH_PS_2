@@ -1,0 +1,236 @@
+# SECUREMAILSCOPE — MASTER ANTIGRAVITY INSTRUCTION
+
+You are the coding agent for the SIH26159 project:
+
+**SecureMailScope — AI-Assisted Cryptographic Security Posture Assessment for Secure Email Communications**
+
+Your job is to develop the project stage-by-stage using the prompt files in this folder.
+
+## 1. READ BEFORE DOING ANYTHING
+
+First read completely:
+
+1. `ANTIGRAVITY/01_Implementation_Prompts.txt`
+2. `ANTIGRAVITY/02_Check_Prompts.txt`
+3. `ANTIGRAVITY/PROJECT_STATE.md`
+
+Do not ask the user to copy/paste individual stage prompts. Read the required prompt directly from the files.
+
+## 2. CREATE / USE THE PROJECT
+
+Create the project folder:
+
+`SecureMailScope/`
+
+All application source code must live inside that folder.
+
+The intended stack is free/open-source and locally deployable:
+
+- Backend: Python + FastAPI + Pydantic
+- PCAP analysis: TShark/Wireshark + PyShark/Scapy
+- TLS/X.509: Python cryptography
+- ML: scikit-learn + SHAP
+- Database: PostgreSQL
+- Frontend: React + Vite + Tailwind CSS
+- Charts: Recharts or Plotly
+- Reports: Jinja2 + WeasyPrint + JSON
+- Synthetic traffic/testing: Docker, Postfix, Dovecot, tcpdump/TShark
+- Deployment: Docker Compose
+- Testing: pytest
+- Version control: Git/GitHub
+
+Prefer local/offline execution. Do not introduce paid APIs or unnecessary cloud dependencies.
+
+## 3. CORE DEVELOPMENT RULE
+
+Follow the stages strictly in order.
+
+For every stage use this exact lifecycle:
+
+### STEP A — IMPLEMENT
+1. Read the stage's implementation prompt from `01_Implementation_Prompts.txt`.
+2. Inspect the current repository and previous completed work.
+3. Create/use the specified feature branch for that stage.
+4. Implement ONLY the requested stage.
+5. Do not prematurely implement future-stage functionality.
+6. Run relevant tests, linting, type checks, builds, and basic runtime checks where applicable.
+7. Review the git diff and git status.
+8. Do a self-review for correctness, security, maintainability, and deployment.
+9. STOP.
+
+### STEP B — USER CONFIRMATION TO CHECK
+Do NOT automatically continue.
+
+Tell the user that the implementation is complete and ask them to confirm that the stage should be checked.
+
+When the user confirms, read the matching stage check prompt from:
+
+`ANTIGRAVITY/02_Check_Prompts.txt`
+
+Then perform the verification/review ONLY.
+
+The check must:
+- inspect the implementation;
+- run appropriate tests/checks;
+- verify that the stage requirements were actually met;
+- identify bugs, missing requirements, regressions, security problems, or deployment problems;
+- report severity and exact file/location where possible;
+- return one of:
+  - PASS
+  - PASS WITH ISSUES
+  - FAIL
+
+Do NOT modify source code during the check unless the user explicitly asks you to fix something.
+
+Do NOT commit, push, or merge during the check.
+
+Update the local verification record in:
+`ANTIGRAVITY/03_Stage_Check_Report.txt`
+
+This report is local working documentation and MUST NOT be committed or pushed.
+
+Then STOP and wait for the user.
+
+## 4. HUMAN APPROVAL / FIX LOOP
+
+After verification:
+
+### If FAIL or PASS WITH ISSUES
+STOP.
+
+Do not commit, push, merge, or move to the next stage.
+
+Tell the user exactly what needs attention.
+
+If the user says to fix the issues:
+1. Fix ONLY the reported issues.
+2. Re-run the relevant tests/checks.
+3. Re-run the stage verification.
+4. STOP again for user approval.
+
+Do not silently expand scope.
+
+### If PASS
+STOP and ask the user whether they approve the stage for Git commit/push/merge.
+
+The user will handle the final Git approval/action.
+
+Do NOT automatically push or merge.
+
+If the user tells you that the stage has been manually committed/pushed/merged and asks you to continue, then and only then proceed to the next stage.
+
+## 5. GIT SAFETY RULES
+
+You may create feature branches and inspect Git state.
+
+NEVER automatically:
+- `git push`
+- `git merge`
+- `git rebase`
+- force push
+- delete branches
+- rewrite Git history
+- commit changes
+
+A commit/push/merge happens only after the user explicitly approves it.
+
+Even after a successful check, WAIT.
+
+The required workflow is:
+
+`Implement → STOP → User confirms Check → Check → STOP → User reviews → Fix if needed → Re-check → STOP → User approves Git action → User commits/pushes/merges → User tells you to continue → Next Stage`
+
+## 6. NO AUTONOMOUS STAGE SKIPPING
+
+Never:
+- skip a stage;
+- combine multiple stages unless the user explicitly requests it;
+- implement future-stage features early;
+- declare the whole project complete after partial implementation;
+- continue automatically after a stage check;
+- assume user approval from silence.
+
+Always maintain the stage boundary.
+
+## 7. PROJECT STATE
+
+Keep `ANTIGRAVITY/PROJECT_STATE.md` updated with the current development state, but do not commit it unless the user explicitly asks.
+
+At minimum track:
+- current stage
+- stage status
+- branch
+- implementation status
+- verification status
+- issues
+- user approval status
+- next action
+
+## 8. ENGINEERING PRINCIPLES
+
+The product is an evidence-first passive email cryptographic forensics platform.
+
+Architecture principle:
+
+`Facts → Rules → Evidence → ML → Prioritization → Recommendation`
+
+Do NOT build:
+
+`PCAP → LLM → arbitrary verdict`
+
+Deterministic protocol/TLS/certificate facts must remain authoritative.
+
+ML should assist with:
+- risk classification;
+- anomaly detection;
+- prioritization;
+- explainability.
+
+The system must explicitly support:
+
+`UNKNOWN / INSUFFICIENT_EVIDENCE`
+
+when passive PCAP data does not contain enough evidence.
+
+Never invent certificate, TLS, cipher, packet, or session facts.
+
+Preserve evidence references such as:
+- packet/frame numbers;
+- timestamps;
+- TCP stream/session IDs;
+- protocol;
+- handshake information;
+- certificate details;
+- relevant packet ranges.
+
+## 9. SECURITY / PRIVACY
+
+Do not inspect or expose email message contents unless a stage explicitly requires it.
+
+Focus on metadata, protocol behavior, TLS, certificates, cryptographic posture, and forensic evidence.
+
+Use safe parsing and input validation for uploaded PCAP/PCAPNG files.
+
+Do not execute arbitrary uploaded content.
+
+## 10. WHEN SOMETHING IS UNCLEAR
+
+Do not silently invent requirements.
+
+Use the existing stage prompt, project architecture, and previous implementation as the source of truth.
+
+If a genuine blocking ambiguity exists, ask the user before making a potentially destructive architectural decision.
+
+## 11. FIRST ACTION
+
+After reading the prompt files and inspecting the environment:
+
+1. Create/open `SecureMailScope/`.
+2. Inspect the environment and available tools.
+3. Read Stage 00 implementation prompt.
+4. Create the Stage 00 feature branch.
+5. Implement Stage 00 only.
+6. Test and self-review.
+7. STOP and report what was done.
+
+Do not continue to Stage 01 until the complete approval/check/Git workflow above has been completed.
