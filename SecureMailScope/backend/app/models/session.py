@@ -71,5 +71,6 @@ class TcpSession(Base, TimestampMixin):
     tls_handshake = relationship("TlsHandshakeAnalysis", back_populates="tcp_session", uselist=False, cascade="all, delete-orphan")
     certificates = relationship("X509CertificateAnalysis", back_populates="session", cascade="all, delete-orphan")
     crypto_findings = relationship("CryptoRuleResult", back_populates="tcp_session", cascade="all, delete-orphan")
+    unified_findings = relationship("UnifiedFinding", back_populates="tcp_session", cascade="all, delete-orphan")
 
 

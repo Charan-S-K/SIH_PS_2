@@ -19,6 +19,7 @@ from app.models.starttls import StarttlsAnalysis
 from app.models.tls_handshake import TlsHandshakeAnalysis
 from app.models.certificate import X509CertificateAnalysis
 from app.models.rule_result import CryptoRuleResult
+from app.models.finding import UnifiedFinding
 from app.schemas.job import AnalysisJobResponse, JobListResponse
 from app.schemas.packet import PacketListResponse, PacketMetadataResponse, CaptureSummaryResponse
 from app.schemas.protocol import ProtocolIdentificationResponse, ProtocolListResponse
@@ -33,6 +34,12 @@ from app.schemas.rule_engine import (
     CryptoRuleDefinition,
     EvaluateRulesRequest,
 )
+from app.schemas.finding import (
+    UnifiedFindingResponse,
+    FindingsSummaryResponse,
+    UnifiedFindingsListResponse,
+    ConsolidateFindingsRequest,
+)
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
@@ -41,6 +48,7 @@ from app.services.starttls_analyzer import StarttlsAnalyzer
 from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
 from app.services.x509_analyzer import X509Analyzer
 from app.services.crypto_rules_engine import CryptographicRulesEngine
+from app.services.findings_service import FindingsService
 
 
 logger = logging.getLogger(__name__)
@@ -901,6 +909,116 @@ def evaluate_job_rules(
         summary=summary,
         findings=[CryptoFindingResponse.model_validate(f) for f in findings]
     )
+
+
+# ---------------------------------------------------------
+# Stage 10: Unified Findings Model & Correlation Endpoints
+# ---------------------------------------------------------
+
+@router.get(
+    "/{job_id}/findings",
+    response_model=UnifiedFindingsListResponse,
+    summary="Get unified and correlated findings for a job",
+    description="Retrieves consolidated findings across all passive analysis stages with optional severity, type, stream, and duplicate filtering."
+)
+def get_job_unified_findings(
+    job_id: str,
+    severity: Optional[str] = Query(default=None, description="Filter by severity: CRITICAL, HIGH, MEDIUM, LOW, INFO"),
+    finding_type: Optional[str] = Query(default=None, description="Filter by finding type: CRYPTOGRAPHIC_WEAKNESS, CERTIFICATE_FORENSIC, etc."),
+    is_duplicate: Optional[bool] = Query(default=None, description="Filter by deduplication state (true for duplicates, false for unique)"),
+    tcp_stream: Optional[int] = Query(default=None, description="Filter by TCP stream ID"),
+    limit: int = Query(default=100, ge=1, le=1000, description="Max findings to return"),
+    offset: int = Query(default=0, ge=0, description="Offset for pagination"),
+    db: Session = Depends(get_db)
+) -> UnifiedFindingsListResponse:
+    """Fetch unified findings and correlation summary for a job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    service = FindingsService()
+    summary, all_findings = service.consolidate_job_findings(db, job_id, force_refresh=False)
+
+    filtered = all_findings
+    if severity:
+        filtered = [f for f in filtered if f.severity.upper() == severity.upper()]
+    if finding_type:
+        filtered = [f for f in filtered if f.finding_type.upper() == finding_type.upper()]
+    if is_duplicate is not None:
+        filtered = [f for f in filtered if f.is_duplicate == is_duplicate]
+    if tcp_stream is not None:
+        filtered = [f for f in filtered if f.tcp_stream == tcp_stream]
+
+    paginated = filtered[offset : offset + limit]
+
+    return UnifiedFindingsListResponse(
+        job_id=job.id,
+        summary=summary,
+        findings=[UnifiedFindingResponse.model_validate(f) for f in paginated]
+    )
+
+
+@router.post(
+    "/{job_id}/consolidate-findings",
+    response_model=UnifiedFindingsListResponse,
+    summary="Trigger findings consolidation and correlation for a job",
+    description="Consolidates findings across all passive analysis stages, generates fingerprints, and deduplicates records."
+)
+def consolidate_job_findings(
+    job_id: str,
+    payload: Optional[ConsolidateFindingsRequest] = None,
+    db: Session = Depends(get_db)
+) -> UnifiedFindingsListResponse:
+    """Execute findings consolidation and correlation for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    force_refresh = payload.force_refresh if payload else True
+    service = FindingsService()
+    try:
+        summary, findings = service.consolidate_job_findings(db, job_id, force_refresh=force_refresh)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Findings consolidation failed: {str(exc)}"
+        )
+
+    return UnifiedFindingsListResponse(
+        job_id=job.id,
+        summary=summary,
+        findings=[UnifiedFindingResponse.model_validate(f) for f in findings]
+    )
+
+
+@router.get(
+    "/{job_id}/findings/summary",
+    response_model=FindingsSummaryResponse,
+    summary="Get findings summary and correlation metrics",
+    description="Retrieves aggregate severity counts, deduplication metrics, and type distribution for unified findings."
+)
+def get_job_findings_summary(
+    job_id: str,
+    db: Session = Depends(get_db)
+) -> FindingsSummaryResponse:
+    """Fetch unified findings summary for a job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    service = FindingsService()
+    summary, _ = service.consolidate_job_findings(db, job_id, force_refresh=False)
+    return summary
+
 
 
 

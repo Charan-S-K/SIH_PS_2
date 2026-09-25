@@ -997,6 +997,120 @@ export async function fetchRulesDefinitions(): Promise<{ data: CryptoRuleDefinit
   }
 }
 
+// ---------------------------------------------------------
+// Stage 10: Unified Findings Model & Correlation Interfaces & APIs
+// ---------------------------------------------------------
+
+export interface UnifiedFinding {
+  id: string;
+  job_id: string;
+  tcp_session_id?: string | null;
+  tcp_stream?: number | null;
+  finding_type: string;
+  severity: string;
+  title: string;
+  reason: string;
+  confidence: number;
+  confidence_label: string;
+  rule_id?: string | null;
+  fingerprint: string;
+  is_duplicate: boolean;
+  occurrence_count: number;
+  analysis_references?: Record<string, any> | null;
+  evidence_references?: Record<string, any> | null;
+  remediation?: string | null;
+  created_at: string;
+}
+
+export interface FindingsSummary {
+  job_id: string;
+  total_findings: number;
+  unique_findings: number;
+  duplicate_findings: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  info_count: number;
+  type_counts: Record<string, number>;
+  consolidated_at: string;
+}
+
+export interface UnifiedFindingsListResponse {
+  job_id: string;
+  summary: FindingsSummary;
+  findings: UnifiedFinding[];
+}
+
+export async function fetchJobUnifiedFindings(
+  jobId: string,
+  severity?: string,
+  findingType?: string,
+  isDuplicate?: boolean,
+  tcpStream?: number
+): Promise<{ data: UnifiedFindingsListResponse | null; error: string | null }> {
+  try {
+    const query = new URLSearchParams();
+    if (severity) query.append('severity', severity);
+    if (findingType) query.append('finding_type', findingType);
+    if (isDuplicate !== undefined) query.append('is_duplicate', String(isDuplicate));
+    if (tcpStream !== undefined) query.append('tcp_stream', String(tcpStream));
+
+    const url = `${API_BASE}/jobs/${jobId}/findings${query.toString() ? `?${query.toString()}` : ''}`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch unified findings` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch unified findings' };
+  }
+}
+
+export async function consolidateJobFindings(
+  jobId: string,
+  forceRefresh: boolean = true
+): Promise<{ data: UnifiedFindingsListResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/consolidate-findings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ force_refresh: forceRefresh }),
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to consolidate findings` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to consolidate findings' };
+  }
+}
+
+export async function fetchJobFindingsSummary(
+  jobId: string
+): Promise<{ data: FindingsSummary | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/findings/summary`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch findings summary` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch findings summary' };
+  }
+}
+
+
 
 
 

@@ -11,6 +11,7 @@ import { StarttlsModal } from './components/StarttlsModal';
 import { TlsHandshakeModal } from './components/TlsHandshakeModal';
 import { CertificateModal } from './components/CertificateModal';
 import { CryptoFindingsModal } from './components/CryptoFindingsModal';
+import { FindingsModal } from './components/FindingsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -36,6 +37,7 @@ export const App: React.FC = () => {
   const [selectedJobForTlsHandshakes, setSelectedJobForTlsHandshakes] = useState<AnalysisJob | null>(null);
   const [selectedJobForCertificates, setSelectedJobForCertificates] = useState<AnalysisJob | null>(null);
   const [selectedJobForCryptoFindings, setSelectedJobForCryptoFindings] = useState<AnalysisJob | null>(null);
+  const [selectedJobForUnifiedFindings, setSelectedJobForUnifiedFindings] = useState<AnalysisJob | null>(null);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -130,6 +132,7 @@ export const App: React.FC = () => {
           onViewTlsHandshakes={(job) => setSelectedJobForTlsHandshakes(job)}
           onViewCertificates={(job) => setSelectedJobForCertificates(job)}
           onViewCryptoFindings={(job) => setSelectedJobForCryptoFindings(job)}
+          onViewUnifiedFindings={(job) => setSelectedJobForUnifiedFindings(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -282,10 +285,26 @@ export const App: React.FC = () => {
             }}
           />
         )}
+
+        {/* Stage 10: Unified Findings & Correlation Modal */}
+        {selectedJobForUnifiedFindings && (
+          <FindingsModal
+            jobId={selectedJobForUnifiedFindings.id}
+            filename={selectedJobForUnifiedFindings.pcap_file?.original_filename || 'capture.pcap'}
+            isOpen={true}
+            onClose={() => setSelectedJobForUnifiedFindings(null)}
+            onInspectPackets={(streamId) => {
+              const job = selectedJobForUnifiedFindings;
+              setSelectedJobForUnifiedFindings(null);
+              setTargetStreamId(streamId);
+              setSelectedJob(job);
+            }}
+          />
+        )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 08 X.509 Certificate Analysis &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 10 Unified Findings Model &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

@@ -11,6 +11,7 @@ from app.models.starttls import StarttlsAnalysis
 from app.models.tls_handshake import TlsHandshakeAnalysis
 from app.models.certificate import X509CertificateAnalysis
 from app.models.rule_result import CryptoRuleResult
+from app.models.finding import UnifiedFinding
 
 __all__ = [
     "Base",
@@ -25,6 +26,7 @@ __all__ = [
     "TlsHandshakeAnalysis",
     "X509CertificateAnalysis",
     "CryptoRuleResult",
+    "UnifiedFinding",
 ]
 
 

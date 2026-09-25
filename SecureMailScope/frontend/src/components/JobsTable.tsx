@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnalysisJob, processJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck, Lock } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck, Lock, Layers } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
@@ -14,6 +14,7 @@ interface JobsTableProps {
   onViewTlsHandshakes?: (job: AnalysisJob) => void;
   onViewCertificates?: (job: AnalysisJob) => void;
   onViewCryptoFindings?: (job: AnalysisJob) => void;
+  onViewUnifiedFindings?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -28,6 +29,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onViewTlsHandshakes,
   onViewCertificates,
   onViewCryptoFindings,
+  onViewUnifiedFindings,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -232,6 +234,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <ShieldCheck className="h-3 w-3 text-purple-400" />
                             <span>Crypto Rules</span>
+                          </button>
+                        )}
+                        {onViewUnifiedFindings && (
+                          <button
+                            onClick={() => onViewUnifiedFindings(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700/60 text-[11px] font-medium transition-colors"
+                            title="View Unified Findings & Correlation Model (Stage 10)"
+                          >
+                            <Layers className="h-3 w-3 text-rose-400" />
+                            <span>Unified Findings</span>
                           </button>
                         )}
                         <button
