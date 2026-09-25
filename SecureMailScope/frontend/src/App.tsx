@@ -13,6 +13,7 @@ import { CertificateModal } from './components/CertificateModal';
 import { CryptoFindingsModal } from './components/CryptoFindingsModal';
 import { FindingsModal } from './components/FindingsModal';
 import { SecurityPostureModal } from './components/SecurityPostureModal';
+import { MlDatasetModal } from './components/MlDatasetModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -23,7 +24,7 @@ import {
   InfoResponse,
   AnalysisJob
 } from './services/api';
-import { ShieldCheck, Layers, GitBranch, HardDrive } from 'lucide-react';
+import { ShieldCheck, Layers, GitBranch, HardDrive, Database } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -40,6 +41,7 @@ export const App: React.FC = () => {
   const [selectedJobForCryptoFindings, setSelectedJobForCryptoFindings] = useState<AnalysisJob | null>(null);
   const [selectedJobForUnifiedFindings, setSelectedJobForUnifiedFindings] = useState<AnalysisJob | null>(null);
   const [selectedJobForSecurityPosture, setSelectedJobForSecurityPosture] = useState<AnalysisJob | null>(null);
+  const [isMlDatasetOpen, setIsMlDatasetOpen] = useState<boolean>(false);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -88,20 +90,28 @@ export const App: React.FC = () => {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/40 border border-blue-900/30 p-8 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/40 border border-blue-900/30 p-8 shadow-2xl flex flex-wrap items-center justify-between gap-6">
           <div className="relative z-10 max-w-3xl">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-900/40 border border-blue-700/50 text-blue-300 text-xs font-medium mb-4">
               <ShieldCheck className="h-4 w-4" />
-              <span>SIH 2024 / SIH26159 Project Posture Engine</span>
+              <span>SIH 2024 / SIH26159 Project Security Platform</span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               Cryptographic Security Posture Assessment
             </h1>
             <p className="mt-3 text-base text-slate-300 leading-relaxed">
               Passive email cryptographic forensics platform analyzing SMTP, IMAP, and POP3 network traffic.
-              Stage 07 adds observable TLS Handshake reconstruction, negotiated TLS versions (TLS 1.3/1.2/legacy), cipher suite identification, key-exchange & signature algorithm parameters, extension inspection, and TLS alert detection.
+              Stage 13 adds synthetic ML Dataset generation with ground truth labeling for email security classifiers.
             </p>
           </div>
+
+          <button
+            onClick={() => setIsMlDatasetOpen(true)}
+            className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-600/20 border border-indigo-500/30"
+          >
+            <Database className="w-4 h-4" />
+            <span>ML Dataset Generator</span>
+          </button>
         </div>
 
         {/* Ingestion & Status Grid */}
@@ -314,6 +324,12 @@ export const App: React.FC = () => {
             onClose={() => setSelectedJobForSecurityPosture(null)}
           />
         )}
+
+        {/* Stage 13: ML Dataset Generator Modal */}
+        <MlDatasetModal
+          isOpen={isMlDatasetOpen}
+          onClose={() => setIsMlDatasetOpen(false)}
+        />
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">

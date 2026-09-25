@@ -1301,6 +1301,107 @@ export async function fetchJobServerPostures(
   }
 }
 
+// ---------------------------------------------------------
+// Stage 13: ML Dataset Generator Interfaces & APIs
+// ---------------------------------------------------------
+
+export interface MlDatasetRecordItem {
+  id: string;
+  batch_id: string;
+  sample_index: number;
+  scenario_name: string;
+  protocol: string;
+  tls_version?: string | null;
+  cipher_suite?: string | null;
+  auth_mechanism?: string | null;
+  packet_count: number;
+  duration_seconds: number;
+  total_bytes: number;
+  ground_truth_label: string;
+  label_code: number;
+  label_rationale: string;
+  features_json: Record<string, any>;
+  created_at: string;
+}
+
+export interface MlDatasetBatchItem {
+  id: string;
+  name: string;
+  seed: number;
+  sample_count: number;
+  secure_samples_count: number;
+  weak_crypto_count: number;
+  plaintext_leak_count: number;
+  downgrade_attack_count: number;
+  anomalous_count: number;
+  description?: string | null;
+  created_at: string;
+  records?: MlDatasetRecordItem[];
+}
+
+export async function generateMlDataset(
+  sampleCount: number = 100,
+  seed: number = 42,
+  name?: string
+): Promise<{ data: MlDatasetBatchItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/dataset/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name || 'Synthetic Email Security Dataset',
+        sample_count: sampleCount,
+        seed: seed,
+        include_weak_scenarios: true,
+      }),
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to generate synthetic dataset` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to generate synthetic dataset' };
+  }
+}
+
+export async function fetchMlDatasetBatches(): Promise<{ data: MlDatasetBatchItem[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/dataset/batches`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch dataset batches` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch dataset batches' };
+  }
+}
+
+export async function fetchMlDatasetBatchDetails(batchId: string): Promise<{ data: MlDatasetBatchItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/dataset/batches/${batchId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Dataset batch details not found` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch dataset batch details' };
+  }
+}
+
+export function getMlDatasetCsvExportUrl(batchId: string): string {
+  return `${API_BASE}/ml/dataset/export/${batchId}/csv`;
+}
+
 
 
 

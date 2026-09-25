@@ -13,6 +13,7 @@ from app.models.certificate import X509CertificateAnalysis
 from app.models.rule_result import CryptoRuleResult
 from app.models.finding import UnifiedFinding
 from app.models.security_posture import SecurityPostureScore
+from app.models.ml_dataset import MlDatasetBatch, MlDatasetRecord
 
 __all__ = [
     "Base",
@@ -29,6 +30,8 @@ __all__ = [
     "CryptoRuleResult",
     "UnifiedFinding",
     "SecurityPostureScore",
+    "MlDatasetBatch",
+    "MlDatasetRecord",
 ]
 
 
