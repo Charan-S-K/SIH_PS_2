@@ -14,6 +14,7 @@ from app.models.rule_result import CryptoRuleResult
 from app.models.finding import UnifiedFinding
 from app.models.security_posture import SecurityPostureScore
 from app.models.ml_dataset import MlDatasetBatch, MlDatasetRecord
+from app.models.ml_feature_pipeline import MlFeatureSet
 
 __all__ = [
     "Base",
@@ -32,6 +33,7 @@ __all__ = [
     "SecurityPostureScore",
     "MlDatasetBatch",
     "MlDatasetRecord",
+    "MlFeatureSet",
 ]
 
 
