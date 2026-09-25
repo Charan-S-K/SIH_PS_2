@@ -12,6 +12,7 @@ import { TlsHandshakeModal } from './components/TlsHandshakeModal';
 import { CertificateModal } from './components/CertificateModal';
 import { CryptoFindingsModal } from './components/CryptoFindingsModal';
 import { FindingsModal } from './components/FindingsModal';
+import { SecurityPostureModal } from './components/SecurityPostureModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -38,6 +39,7 @@ export const App: React.FC = () => {
   const [selectedJobForCertificates, setSelectedJobForCertificates] = useState<AnalysisJob | null>(null);
   const [selectedJobForCryptoFindings, setSelectedJobForCryptoFindings] = useState<AnalysisJob | null>(null);
   const [selectedJobForUnifiedFindings, setSelectedJobForUnifiedFindings] = useState<AnalysisJob | null>(null);
+  const [selectedJobForSecurityPosture, setSelectedJobForSecurityPosture] = useState<AnalysisJob | null>(null);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -133,6 +135,7 @@ export const App: React.FC = () => {
           onViewCertificates={(job) => setSelectedJobForCertificates(job)}
           onViewCryptoFindings={(job) => setSelectedJobForCryptoFindings(job)}
           onViewUnifiedFindings={(job) => setSelectedJobForUnifiedFindings(job)}
+          onViewSecurityPosture={(job) => setSelectedJobForSecurityPosture(job)}
         />
 
         {/* Architectural Principles Preview */}
@@ -301,10 +304,20 @@ export const App: React.FC = () => {
             }}
           />
         )}
+
+        {/* Stage 12: Security Posture Score & Risk Ratings Modal */}
+        {selectedJobForSecurityPosture && (
+          <SecurityPostureModal
+            jobId={selectedJobForSecurityPosture.id}
+            filename={selectedJobForSecurityPosture.pcap_file?.original_filename || 'capture.pcap'}
+            isOpen={true}
+            onClose={() => setSelectedJobForSecurityPosture(null)}
+          />
+        )}
       </main>
 
       <footer className="border-t border-slate-800/80 bg-[#0e1626]/50 py-4 text-center text-xs text-slate-500">
-        SecureMailScope &bull; Stage 10 Unified Findings Model &bull; Free & Open-Source Cybersecurity Posture Platform
+        SecureMailScope &bull; Stage 12 Security Posture Engine &bull; Free & Open-Source Cybersecurity Posture Platform
       </footer>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnalysisJob, processJob } from '../services/api';
-import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck, Lock, Layers } from 'lucide-react';
+import { RefreshCw, Clock, CheckCircle2, AlertTriangle, FileCode, Play, Eye, ShieldCheck, MessageSquare, MailCheck, Lock, Layers, Award } from 'lucide-react';
 
 interface JobsTableProps {
   jobs: AnalysisJob[];
@@ -15,6 +15,7 @@ interface JobsTableProps {
   onViewCertificates?: (job: AnalysisJob) => void;
   onViewCryptoFindings?: (job: AnalysisJob) => void;
   onViewUnifiedFindings?: (job: AnalysisJob) => void;
+  onViewSecurityPosture?: (job: AnalysisJob) => void;
 }
 
 export const JobsTable: React.FC<JobsTableProps> = ({
@@ -30,6 +31,7 @@ export const JobsTable: React.FC<JobsTableProps> = ({
   onViewCertificates,
   onViewCryptoFindings,
   onViewUnifiedFindings,
+  onViewSecurityPosture,
 }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -244,6 +246,16 @@ export const JobsTable: React.FC<JobsTableProps> = ({
                           >
                             <Layers className="h-3 w-3 text-rose-400" />
                             <span>Unified Findings</span>
+                          </button>
+                        )}
+                        {onViewSecurityPosture && (
+                          <button
+                            onClick={() => onViewSecurityPosture(job)}
+                            className="inline-flex items-center space-x-1 px-2 py-1 rounded bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/60 text-[11px] font-medium transition-colors font-semibold"
+                            title="View Security Posture Score & Risk Ratings (Stage 12)"
+                          >
+                            <Award className="h-3 w-3 text-emerald-400" />
+                            <span>Posture Score</span>
                           </button>
                         )}
                         <button

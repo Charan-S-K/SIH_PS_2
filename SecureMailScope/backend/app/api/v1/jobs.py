@@ -44,6 +44,11 @@ from app.schemas.evidence import (
     ForensicEvidenceChain,
     JobEvidenceSummaryResponse,
 )
+from app.schemas.security_posture import (
+    SecurityPostureResponse,
+    ServerPostureSummaryItem,
+    JobPostureDashboardResponse,
+)
 from app.services.pcap_processor import PcapProcessor
 from app.services.protocol_identifier import ProtocolIdentifier
 from app.services.tcp_reconstructor import TcpReconstructor
@@ -54,6 +59,7 @@ from app.services.x509_analyzer import X509Analyzer
 from app.services.crypto_rules_engine import CryptographicRulesEngine
 from app.services.findings_service import FindingsService
 from app.services.evidence_engine import EvidenceEngine
+from app.services.security_posture_engine import SecurityPostureEngine
 
 
 logger = logging.getLogger(__name__)
@@ -1093,6 +1099,94 @@ def get_job_evidence_summary(
         )
 
     return summary
+
+
+# ---------------------------------------------------------
+# Stage 12: Security Posture Engine Endpoints
+# ---------------------------------------------------------
+
+@router.get(
+    "/{job_id}/posture",
+    response_model=JobPostureDashboardResponse,
+    summary="Get security posture dashboard and rating for a job",
+    description="Retrieves explainable 0-100 posture score, risk level grade, posture summary rationale, contributing finding point deductions, and per-server breakdown."
+)
+def get_job_security_posture(
+    job_id: str,
+    db: Session = Depends(get_db)
+) -> JobPostureDashboardResponse:
+    """Fetch security posture dashboard for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    engine = SecurityPostureEngine()
+    try:
+        dashboard = engine.calculate_job_posture(db, job_id, force_recalculate=False)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate security posture: {str(exc)}"
+        )
+
+    return dashboard
+
+
+@router.post(
+    "/{job_id}/calculate-posture",
+    response_model=JobPostureDashboardResponse,
+    summary="Recalculate security posture rating for a job",
+    description="Triggers full recalculation of security posture ratings, point deductions, and server breakdowns."
+)
+def calculate_job_security_posture(
+    job_id: str,
+    db: Session = Depends(get_db)
+) -> JobPostureDashboardResponse:
+    """Execute security posture recalculation for an analysis job."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    engine = SecurityPostureEngine()
+    try:
+        dashboard = engine.calculate_job_posture(db, job_id, force_recalculate=True)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Security posture calculation failed: {str(exc)}"
+        )
+
+    return dashboard
+
+
+@router.get(
+    "/{job_id}/posture/servers",
+    response_model=List[ServerPostureSummaryItem],
+    summary="Get per-server security posture breakdowns",
+    description="Retrieves posture scores and risk ratings aggregated by target server IP address."
+)
+def get_job_server_postures(
+    job_id: str,
+    db: Session = Depends(get_db)
+) -> List[ServerPostureSummaryItem]:
+    """Fetch server-level security posture ratings."""
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Analysis job with ID '{job_id}' not found"
+        )
+
+    engine = SecurityPostureEngine()
+    dashboard = engine.calculate_job_posture(db, job_id, force_recalculate=False)
+    return dashboard.server_postures
+
 
 
 

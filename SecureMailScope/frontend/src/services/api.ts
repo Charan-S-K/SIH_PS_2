@@ -1201,6 +1201,107 @@ export async function fetchJobEvidenceSummary(
   }
 }
 
+// ---------------------------------------------------------
+// Stage 12: Security Posture Engine Interfaces & APIs
+// ---------------------------------------------------------
+
+export interface ContributingFindingItem {
+  finding_id: string;
+  rule_id?: string | null;
+  title: string;
+  severity: string;
+  confidence: number;
+  confidence_label: string;
+  deduction_points: number;
+  rationale: string;
+}
+
+export interface SecurityPostureResponse {
+  id: string;
+  job_id: string;
+  tcp_stream?: number | null;
+  server_ip?: string | null;
+  overall_score: number;
+  overall_grade: 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR' | 'CRITICAL_RISK' | string;
+  risk_level: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO' | string;
+  posture_summary: string;
+  total_deduction: number;
+  findings_count: number;
+  contributing_findings: ContributingFindingItem[];
+  scoring_breakdown: Record<string, any>;
+  created_at: string;
+}
+
+export interface ServerPostureSummaryItem {
+  server_ip: string;
+  stream_count: number;
+  overall_score: number;
+  overall_grade: string;
+  risk_level: string;
+  critical_findings_count: number;
+  high_findings_count: number;
+}
+
+export interface JobPostureDashboardResponse {
+  job_id: string;
+  job_posture: SecurityPostureResponse;
+  server_postures: ServerPostureSummaryItem[];
+  evaluated_at: string;
+}
+
+export async function fetchJobSecurityPosture(
+  jobId: string
+): Promise<{ data: JobPostureDashboardResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/posture`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch security posture` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch security posture' };
+  }
+}
+
+export async function calculateJobSecurityPosture(
+  jobId: string
+): Promise<{ data: JobPostureDashboardResponse | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/calculate-posture`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to calculate security posture` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to calculate security posture' };
+  }
+}
+
+export async function fetchJobServerPostures(
+  jobId: string
+): Promise<{ data: ServerPostureSummaryItem[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/jobs/${jobId}/posture/servers`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch server postures` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch server postures' };
+  }
+}
+
+
 
 
 
