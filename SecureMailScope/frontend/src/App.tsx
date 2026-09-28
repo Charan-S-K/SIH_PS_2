@@ -16,6 +16,7 @@ import { SecurityPostureModal } from './components/SecurityPostureModal';
 import { MlDatasetModal } from './components/MlDatasetModal';
 import { MlRiskClassifierModal } from './components/MlRiskClassifierModal';
 import { TlsAnomalyModal } from './components/TlsAnomalyModal';
+import { SyntheticAnomalyModal } from './components/SyntheticAnomalyModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -26,7 +27,7 @@ import {
   InfoResponse,
   AnalysisJob
 } from './services/api';
-import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert, Zap } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -46,6 +47,7 @@ export const App: React.FC = () => {
   const [isMlDatasetOpen, setIsMlDatasetOpen] = useState<boolean>(false);
   const [isMlClassifierOpen, setIsMlClassifierOpen] = useState<boolean>(false);
   const [isTlsAnomalyOpen, setIsTlsAnomalyOpen] = useState<boolean>(false);
+  const [isSyntheticAnomalyOpen, setIsSyntheticAnomalyOpen] = useState<boolean>(false);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -130,6 +132,13 @@ export const App: React.FC = () => {
             >
               <ShieldAlert className="w-4 h-4" />
               <span>TLS Anomaly Detection</span>
+            </button>
+            <button
+              onClick={() => setIsSyntheticAnomalyOpen(true)}
+              className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-amber-600/20 border border-amber-500/30"
+            >
+              <Zap className="w-4 h-4 text-amber-200" />
+              <span>Synthetic Anomaly Injector</span>
             </button>
           </div>
         </div>
@@ -361,6 +370,12 @@ export const App: React.FC = () => {
         <TlsAnomalyModal
           isOpen={isTlsAnomalyOpen}
           onClose={() => setIsTlsAnomalyOpen(false)}
+        />
+
+        {/* Stage 17: Synthetic Anomaly Injection & Evaluation Modal */}
+        <SyntheticAnomalyModal
+          isOpen={isSyntheticAnomalyOpen}
+          onClose={() => setIsSyntheticAnomalyOpen(false)}
         />
       </main>
 

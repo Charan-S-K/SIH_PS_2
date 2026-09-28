@@ -17,6 +17,7 @@ from app.models.ml_dataset import MlDatasetBatch, MlDatasetRecord
 from app.models.ml_feature_pipeline import MlFeatureSet
 from app.models.ml_model import MlTrainedModel, MlPredictionResult
 from app.models.tls_anomaly import TlsAnomalyDetectorModel, TlsAnomalyResult
+from app.models.synthetic_anomaly import SyntheticAnomalyBatch, SyntheticAnomalyEvaluation
 
 __all__ = [
     "Base",
@@ -40,6 +41,8 @@ __all__ = [
     "MlPredictionResult",
     "TlsAnomalyDetectorModel",
     "TlsAnomalyResult",
+    "SyntheticAnomalyBatch",
+    "SyntheticAnomalyEvaluation",
 ]
 
 

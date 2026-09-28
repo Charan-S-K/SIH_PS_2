@@ -8,6 +8,7 @@ from app.api.v1.ml import router as ml_router
 from app.api.v1.ml_pipeline import router as ml_pipeline_router
 from app.api.v1.ml_model import router as ml_model_router
 from app.api.v1.tls_anomaly import router as tls_anomaly_router
+from app.api.v1.synthetic_anomaly import router as synthetic_anomaly_router
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(health_router, prefix="/health", tags=["Health & Status"])
@@ -18,3 +19,4 @@ api_v1_router.include_router(ml_router)
 api_v1_router.include_router(ml_pipeline_router)
 api_v1_router.include_router(ml_model_router)
 api_v1_router.include_router(tls_anomaly_router)
+api_v1_router.include_router(synthetic_anomaly_router)

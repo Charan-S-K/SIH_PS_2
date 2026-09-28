@@ -1643,6 +1643,112 @@ export async function getJobTlsAnomalySummary(
   }
 }
 
+/* ============================================================================
+   Stage 17: Synthetic Anomaly Injection & Evaluation API Services
+   ============================================================================ */
+
+export interface SyntheticAnomalyBatchItem {
+  id: string;
+  name: string;
+  baseline_feature_set_id: string;
+  anomaly_profile: string;
+  injection_rate: number;
+  total_samples_count: number;
+  injected_samples_count: number;
+  created_at: string;
+}
+
+export interface SyntheticAnomalyEvaluationResponseItem {
+  id: string;
+  injection_batch_id: string;
+  detector_version: string;
+  total_samples: number;
+  total_injected_anomalies: number;
+  true_positives: number;
+  false_positives: number;
+  true_negatives: number;
+  false_negatives: number;
+  precision: number;
+  recall: number;
+  f1_score: number;
+  false_positive_rate: number;
+  disclaimer_text: string;
+  created_at: string;
+}
+
+export async function injectSyntheticAnomalies(
+  featureSetId: string,
+  anomalyProfile: string,
+  injectionRate: number = 0.15,
+  seed: number = 42
+): Promise<{ data: SyntheticAnomalyBatchItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/anomaly/synthetic/inject`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        feature_set_id: featureSetId,
+        anomaly_profile: anomalyProfile,
+        injection_rate: injectionRate,
+        seed: seed,
+      }),
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Injection failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Synthetic anomaly injection failed' };
+  }
+}
+
+export async function fetchSyntheticInjections(): Promise<{ data: SyntheticAnomalyBatchItem[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/anomaly/synthetic/injections`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch injection batches` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch injection batches' };
+  }
+}
+
+export async function evaluateSyntheticInjection(
+  injectionBatchId: string,
+  detectorVersion?: string
+): Promise<{ data: SyntheticAnomalyEvaluationResponseItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/anomaly/synthetic/evaluate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        injection_batch_id: injectionBatchId,
+        detector_version: detectorVersion,
+      }),
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Synthetic evaluation failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Synthetic evaluation failed' };
+  }
+}
+
 
 
 
