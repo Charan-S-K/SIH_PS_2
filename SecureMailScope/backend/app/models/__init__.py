@@ -16,6 +16,7 @@ from app.models.security_posture import SecurityPostureScore
 from app.models.ml_dataset import MlDatasetBatch, MlDatasetRecord
 from app.models.ml_feature_pipeline import MlFeatureSet
 from app.models.ml_model import MlTrainedModel, MlPredictionResult
+from app.models.tls_anomaly import TlsAnomalyDetectorModel, TlsAnomalyResult
 
 __all__ = [
     "Base",
@@ -37,6 +38,8 @@ __all__ = [
     "MlFeatureSet",
     "MlTrainedModel",
     "MlPredictionResult",
+    "TlsAnomalyDetectorModel",
+    "TlsAnomalyResult",
 ]
 
 

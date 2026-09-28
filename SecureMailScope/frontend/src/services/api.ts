@@ -1509,6 +1509,140 @@ export async function predictMlRisk(
   }
 }
 
+/* ============================================================================
+   Stage 16: TLS Anomaly Detection API Services
+   ============================================================================ */
+
+export interface TlsAnomalyDetectorItem {
+  id: string;
+  name: string;
+  version: string;
+  algorithm: string;
+  contamination: number;
+  calibrated_threshold: number;
+  n_estimators: number;
+  random_state: number;
+  feature_set_id?: string;
+  baseline_samples_count: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface TlsAnomalyResponseItem {
+  id: string;
+  model_id: string;
+  model_version: string;
+  job_id?: string;
+  tcp_stream?: number;
+  raw_anomaly_score: number;
+  calibrated_threshold: number;
+  is_anomalous: boolean;
+  anomaly_label: string;
+  disclaimer_text: string;
+  features_json: Record<string, any>;
+  execution_time_ms: number;
+  created_at: string;
+}
+
+export interface JobAnomalySummaryResponseItem {
+  job_id: string;
+  model_version: string;
+  total_sessions_evaluated: number;
+  anomalous_sessions_count: number;
+  anomaly_rate_percent: number;
+  calibrated_threshold: number;
+  disclaimer_text: string;
+  results: TlsAnomalyResponseItem[];
+}
+
+export async function trainTlsAnomalyDetector(
+  featureSetId: string,
+  contamination: number = 0.05,
+  nEstimators: number = 100,
+  version?: string
+): Promise<{ data: TlsAnomalyDetectorItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/anomaly/train`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        feature_set_id: featureSetId,
+        contamination,
+        n_estimators: nEstimators,
+        version,
+      }),
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Detector training failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Detector training failed' };
+  }
+}
+
+export async function fetchTlsAnomalyDetectors(): Promise<{ data: TlsAnomalyDetectorItem[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/anomaly/detectors`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch detectors` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch detectors' };
+  }
+}
+
+export async function predictJobTlsAnomalies(
+  jobId: string,
+  modelVersion?: string
+): Promise<{ data: JobAnomalySummaryResponseItem | null; error: string | null }> {
+  try {
+    const url = modelVersion
+      ? `${API_BASE}/ml/anomaly/predict-job/${jobId}?model_version=${encodeURIComponent(modelVersion)}`
+      : `${API_BASE}/ml/anomaly/predict-job/${jobId}`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Job anomaly evaluation failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Job anomaly evaluation failed' };
+  }
+}
+
+export async function getJobTlsAnomalySummary(
+  jobId: string
+): Promise<{ data: JobAnomalySummaryResponseItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/anomaly/job/${jobId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Failed to fetch job anomaly summary` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch job anomaly summary' };
+  }
+}
+
 
 
 

@@ -15,6 +15,7 @@ import { FindingsModal } from './components/FindingsModal';
 import { SecurityPostureModal } from './components/SecurityPostureModal';
 import { MlDatasetModal } from './components/MlDatasetModal';
 import { MlRiskClassifierModal } from './components/MlRiskClassifierModal';
+import { TlsAnomalyModal } from './components/TlsAnomalyModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -25,7 +26,7 @@ import {
   InfoResponse,
   AnalysisJob
 } from './services/api';
-import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain } from 'lucide-react';
+import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -44,6 +45,7 @@ export const App: React.FC = () => {
   const [selectedJobForSecurityPosture, setSelectedJobForSecurityPosture] = useState<AnalysisJob | null>(null);
   const [isMlDatasetOpen, setIsMlDatasetOpen] = useState<boolean>(false);
   const [isMlClassifierOpen, setIsMlClassifierOpen] = useState<boolean>(false);
+  const [isTlsAnomalyOpen, setIsTlsAnomalyOpen] = useState<boolean>(false);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -121,6 +123,13 @@ export const App: React.FC = () => {
             >
               <Brain className="w-4 h-4" />
               <span>ML Risk Classifier</span>
+            </button>
+            <button
+              onClick={() => setIsTlsAnomalyOpen(true)}
+              className="flex items-center space-x-2 bg-pink-600 hover:bg-pink-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-pink-600/20 border border-pink-500/30"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              <span>TLS Anomaly Detection</span>
             </button>
           </div>
         </div>
@@ -346,6 +355,12 @@ export const App: React.FC = () => {
         <MlRiskClassifierModal
           isOpen={isMlClassifierOpen}
           onClose={() => setIsMlClassifierOpen(false)}
+        />
+
+        {/* Stage 16: TLS Anomaly Detection Modal */}
+        <TlsAnomalyModal
+          isOpen={isTlsAnomalyOpen}
+          onClose={() => setIsTlsAnomalyOpen(false)}
         />
       </main>
 
