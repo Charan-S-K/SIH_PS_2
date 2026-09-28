@@ -1,6 +1,6 @@
 """
 SecureMailScope FastAPI Main Application.
-Provides API routing, CORS handling, middleware, and lifecycle events.
+Provides API routing, CORS handling, middleware, database initialization, and lifecycle events.
 """
 
 import logging
@@ -12,7 +12,8 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.api.v1 import api_v1_router
-from app.database import engine, Base, check_database_connection
+from app.database import engine, Base, SessionLocal, check_database_connection
+from app.services.persistence_hardening import PersistenceHardeningService
 import app.models  # Ensure models are imported for metadata registration
 
 logging.basicConfig(
@@ -36,8 +37,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         try:
             Base.metadata.create_all(bind=engine)
             logger.info("Database tables initialized successfully.")
+            
+            # Stage 21: Auto-recover jobs stuck in PROCESSING / QUEUED from prior server restart
+            db = SessionLocal()
+            try:
+                recovered_count = PersistenceHardeningService.recover_interrupted_jobs(db)
+                if recovered_count > 0:
+                    logger.info("Service restart recovery: %d interrupted jobs successfully recovered.", recovered_count)
+            finally:
+                db.close()
+                
         except Exception as exc:
-            logger.warning("Failed to initialize database tables: %s", exc)
+            logger.warning("Failed to initialize database tables or recovery: %s", exc)
     else:
         logger.warning("Initial database connection failed: %s (Will retry upon requests)", db_err)
     

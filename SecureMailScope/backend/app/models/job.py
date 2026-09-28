@@ -43,7 +43,4 @@ class AnalysisJob(Base, TimestampMixin):
     crypto_findings = relationship("CryptoRuleResult", back_populates="job", cascade="all, delete-orphan")
     unified_findings = relationship("UnifiedFinding", back_populates="job", cascade="all, delete-orphan")
     posture_scores = relationship("SecurityPostureScore", back_populates="job", cascade="all, delete-orphan")
-
-
-
-
+    report_records = relationship("ReportMetadata", back_populates="job", cascade="all, delete-orphan")

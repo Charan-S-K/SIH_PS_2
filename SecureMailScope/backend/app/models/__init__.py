@@ -20,6 +20,7 @@ from app.models.tls_anomaly import TlsAnomalyDetectorModel, TlsAnomalyResult
 from app.models.synthetic_anomaly import SyntheticAnomalyBatch, SyntheticAnomalyEvaluation
 from app.models.prioritization import FindingPrioritization, JobPrioritizationSummary
 from app.models.recommendation import RemediationRecommendation
+from app.models.report_metadata import ReportMetadata
 
 __all__ = [
     "Base",
@@ -48,8 +49,5 @@ __all__ = [
     "FindingPrioritization",
     "JobPrioritizationSummary",
     "RemediationRecommendation",
+    "ReportMetadata",
 ]
-
-
-
-
