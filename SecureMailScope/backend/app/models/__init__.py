@@ -15,6 +15,7 @@ from app.models.finding import UnifiedFinding
 from app.models.security_posture import SecurityPostureScore
 from app.models.ml_dataset import MlDatasetBatch, MlDatasetRecord
 from app.models.ml_feature_pipeline import MlFeatureSet
+from app.models.ml_model import MlTrainedModel, MlPredictionResult
 
 __all__ = [
     "Base",
@@ -34,6 +35,8 @@ __all__ = [
     "MlDatasetBatch",
     "MlDatasetRecord",
     "MlFeatureSet",
+    "MlTrainedModel",
+    "MlPredictionResult",
 ]
 
 

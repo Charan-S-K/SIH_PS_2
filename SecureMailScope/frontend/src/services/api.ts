@@ -1402,6 +1402,113 @@ export function getMlDatasetCsvExportUrl(batchId: string): string {
   return `${API_BASE}/ml/dataset/export/${batchId}/csv`;
 }
 
+// ---------------------------------------------------------
+// Stage 15: ML Risk Classifier Interfaces & APIs
+// ---------------------------------------------------------
+
+export interface MlTrainedModelItem {
+  id: string;
+  name: string;
+  version: string;
+  algorithm: string;
+  hyperparameters: Record<string, any>;
+  feature_set_id?: string | null;
+  accuracy: number;
+  precision_macro: number;
+  recall_macro: number;
+  f1_macro: number;
+  confusion_matrix: number[][];
+  class_report: Record<string, any>;
+  feature_importances: Record<string, number>;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface MlPredictionResponseItem {
+  id: string;
+  model_id: string;
+  model_version: string;
+  job_id?: string | null;
+  tcp_stream?: number | null;
+  predicted_class_code: number;
+  predicted_label: string;
+  confidence_probabilities: Record<string, number>;
+  is_deterministic_fact_overridden: boolean;
+  inference_time_ms: number;
+  created_at: string;
+}
+
+export async function trainMlRiskClassifier(
+  featureSetId: string,
+  nEstimators: number = 100,
+  maxDepth: number = 12,
+  version?: string
+): Promise<{ data: MlTrainedModelItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/models/train`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        feature_set_id: featureSetId,
+        n_estimators: nEstimators,
+        max_depth: maxDepth,
+        version: version,
+      }),
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to train ML Risk Classifier model` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to train ML Risk Classifier model' };
+  }
+}
+
+export async function fetchMlModels(): Promise<{ data: MlTrainedModelItem[] | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/models`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Failed to fetch ML models` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch ML models' };
+  }
+}
+
+export async function predictMlRisk(
+  featuresJson: Record<string, any>,
+  modelVersion?: string
+): Promise<{ data: MlPredictionResponseItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/ml/models/predict`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        model_version: modelVersion,
+        features_json: featuresJson,
+      }),
+    });
+    if (!res.ok) {
+      return { data: null, error: `HTTP ${res.status}: Inference prediction failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Inference prediction failed' };
+  }
+}
+
 
 
 

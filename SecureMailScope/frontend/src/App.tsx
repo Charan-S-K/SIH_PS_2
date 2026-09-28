@@ -14,6 +14,7 @@ import { CryptoFindingsModal } from './components/CryptoFindingsModal';
 import { FindingsModal } from './components/FindingsModal';
 import { SecurityPostureModal } from './components/SecurityPostureModal';
 import { MlDatasetModal } from './components/MlDatasetModal';
+import { MlRiskClassifierModal } from './components/MlRiskClassifierModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -24,7 +25,7 @@ import {
   InfoResponse,
   AnalysisJob
 } from './services/api';
-import { ShieldCheck, Layers, GitBranch, HardDrive, Database } from 'lucide-react';
+import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -42,6 +43,7 @@ export const App: React.FC = () => {
   const [selectedJobForUnifiedFindings, setSelectedJobForUnifiedFindings] = useState<AnalysisJob | null>(null);
   const [selectedJobForSecurityPosture, setSelectedJobForSecurityPosture] = useState<AnalysisJob | null>(null);
   const [isMlDatasetOpen, setIsMlDatasetOpen] = useState<boolean>(false);
+  const [isMlClassifierOpen, setIsMlClassifierOpen] = useState<boolean>(false);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,13 +107,22 @@ export const App: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => setIsMlDatasetOpen(true)}
-            className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-600/20 border border-indigo-500/30"
-          >
-            <Database className="w-4 h-4" />
-            <span>ML Dataset Generator</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setIsMlDatasetOpen(true)}
+              className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-600/20 border border-indigo-500/30"
+            >
+              <Database className="w-4 h-4" />
+              <span>ML Dataset Generator</span>
+            </button>
+            <button
+              onClick={() => setIsMlClassifierOpen(true)}
+              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-purple-600/20 border border-purple-500/30"
+            >
+              <Brain className="w-4 h-4" />
+              <span>ML Risk Classifier</span>
+            </button>
+          </div>
         </div>
 
         {/* Ingestion & Status Grid */}
@@ -329,6 +340,12 @@ export const App: React.FC = () => {
         <MlDatasetModal
           isOpen={isMlDatasetOpen}
           onClose={() => setIsMlDatasetOpen(false)}
+        />
+
+        {/* Stage 15: ML Risk Classifier Modal */}
+        <MlRiskClassifierModal
+          isOpen={isMlClassifierOpen}
+          onClose={() => setIsMlClassifierOpen(false)}
         />
       </main>
 

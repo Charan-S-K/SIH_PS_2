@@ -5,6 +5,8 @@ ANTIGRAVITY/PROJECT_STATE.md
 # Python
 __pycache__/
 *.py[cod]
+*.joblib
+artifacts/
 .venv/
 venv/
 .env
