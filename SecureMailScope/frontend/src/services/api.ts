@@ -1833,6 +1833,73 @@ export async function getJobPrioritizationSummary(
   }
 }
 
+/* ============================================================================
+   Stage 19: Recommendations Engine API Services
+   ============================================================================ */
+
+export interface RecommendationItem {
+  id: string;
+  job_id: string;
+  finding_id?: string;
+  rule_id: string;
+  title: string;
+  severity: string;
+  affected_component: string;
+  recommended_action: string;
+  rationale: string;
+  implementation_effort: string;
+  compliance_frameworks?: string[];
+  triggering_evidence_json?: Record<string, any>;
+  created_at: string;
+}
+
+export interface JobRecommendationsSummaryItem {
+  job_id: string;
+  total_recommendations: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  recommendations: RecommendationItem[];
+}
+
+export async function generateJobRecommendations(
+  jobId: string
+): Promise<{ data: JobRecommendationsSummaryItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/recommendations/generate/${jobId}`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Recommendations generation failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Recommendations generation failed' };
+  }
+}
+
+export async function getJobRecommendationsSummary(
+  jobId: string
+): Promise<{ data: JobRecommendationsSummaryItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/recommendations/job/${jobId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Failed to fetch recommendations summary` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch recommendations summary' };
+  }
+}
+
 
 
 

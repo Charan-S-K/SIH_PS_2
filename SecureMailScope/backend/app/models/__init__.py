@@ -19,6 +19,7 @@ from app.models.ml_model import MlTrainedModel, MlPredictionResult
 from app.models.tls_anomaly import TlsAnomalyDetectorModel, TlsAnomalyResult
 from app.models.synthetic_anomaly import SyntheticAnomalyBatch, SyntheticAnomalyEvaluation
 from app.models.prioritization import FindingPrioritization, JobPrioritizationSummary
+from app.models.recommendation import RemediationRecommendation
 
 __all__ = [
     "Base",
@@ -46,6 +47,7 @@ __all__ = [
     "SyntheticAnomalyEvaluation",
     "FindingPrioritization",
     "JobPrioritizationSummary",
+    "RemediationRecommendation",
 ]
 
 

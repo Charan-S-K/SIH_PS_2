@@ -18,6 +18,7 @@ import { MlRiskClassifierModal } from './components/MlRiskClassifierModal';
 import { TlsAnomalyModal } from './components/TlsAnomalyModal';
 import { SyntheticAnomalyModal } from './components/SyntheticAnomalyModal';
 import { PrioritizationModal } from './components/PrioritizationModal';
+import { RecommendationsModal } from './components/RecommendationsModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -28,7 +29,7 @@ import {
   InfoResponse,
   AnalysisJob
 } from './services/api';
-import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert, Zap, ListOrdered } from 'lucide-react';
+import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert, Zap, ListOrdered, Wrench } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -50,6 +51,7 @@ export const App: React.FC = () => {
   const [isTlsAnomalyOpen, setIsTlsAnomalyOpen] = useState<boolean>(false);
   const [isSyntheticAnomalyOpen, setIsSyntheticAnomalyOpen] = useState<boolean>(false);
   const [isPrioritizationOpen, setIsPrioritizationOpen] = useState<boolean>(false);
+  const [isRecommendationsOpen, setIsRecommendationsOpen] = useState<boolean>(false);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -148,6 +150,13 @@ export const App: React.FC = () => {
             >
               <ListOrdered className="w-4 h-4 text-amber-200" />
               <span>Prioritization Engine</span>
+            </button>
+            <button
+              onClick={() => setIsRecommendationsOpen(true)}
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-blue-600/20 border border-blue-500/30"
+            >
+              <Wrench className="w-4 h-4 text-blue-200" />
+              <span>Remediation Engine</span>
             </button>
           </div>
         </div>
@@ -391,6 +400,12 @@ export const App: React.FC = () => {
         <PrioritizationModal
           isOpen={isPrioritizationOpen}
           onClose={() => setIsPrioritizationOpen(false)}
+        />
+
+        {/* Stage 19: Remediation & Hardening Recommendations Engine Modal */}
+        <RecommendationsModal
+          isOpen={isRecommendationsOpen}
+          onClose={() => setIsRecommendationsOpen(false)}
         />
       </main>
 
