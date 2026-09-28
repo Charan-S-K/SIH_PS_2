@@ -20,10 +20,15 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1024M
     networks:
       - securemailscope-net
 
-  # FastAPI Backend Service
+  # FastAPI Backend & Forensics Engine Service
   backend:
     build:
       context: ./backend
@@ -31,13 +36,17 @@ services:
     container_name: securemailscope-backend
     restart: unless-stopped
     environment:
-      ENVIRONMENT: ${ENVIRONMENT:-development}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
       DEBUG: ${DEBUG:-false}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://postgres:postgres@db:5432/securemailscope}
       DATABASE_CONNECT_TIMEOUT_SECONDS: ${DATABASE_CONNECT_TIMEOUT_SECONDS:-5}
-      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:5173", "http://localhost:3000"]}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000", "http://localhost:5173", "http://localhost:80"]}
     ports:
       - "8000:8000"
+    volumes:
+      - pcapdata:/app/uploads
+      - modeldata:/app/models_cache
+      - reportdata:/app/reports_storage
     depends_on:
       db:
         condition: service_healthy
@@ -47,10 +56,15 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
     networks:
       - securemailscope-net
 
-  # React / Vite / Nginx Frontend Service
+  # React / Nginx Frontend Service
   frontend:
     build:
       context: ./frontend
@@ -61,13 +75,31 @@ services:
       - "3000:80"
       - "5173:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
     networks:
       - securemailscope-net
 
 volumes:
   pgdata:
     name: securemailscope-pgdata
+  pcapdata:
+    name: securemailscope-pcapdata
+  modeldata:
+    name: securemailscope-modeldata
+  reportdata:
+    name: securemailscope-reportdata
 
 networks:
   securemailscope-net:

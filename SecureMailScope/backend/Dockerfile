@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for SecureMailScope Backend
+# Multi-stage Dockerfile for SecureMailScope Backend with TShark & PyShark Support
 FROM python:3.11-slim AS builder
 
 WORKDIR /build
@@ -11,19 +11,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Final runtime image
+# Final runtime image with TShark dependency
 FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install TShark, libpq5, curl for non-destructive packet parsing and health probes
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    tshark \
+    wireshark-common \
     libpq5 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Security: Create non-root unprivileged service user
 RUN groupadd -g 10001 appgroup && \
-    useradd -u 10001 -g appgroup -s /bin/sh -m appuser
+    useradd -u 10001 -g appgroup -s /bin/sh -m appuser && \
+    usermod -aG wireshark appuser || true
+
+# Prepare upload and persistent storage directories with proper non-root permissions
+RUN mkdir -p /app/uploads /app/models_cache /app/reports_storage && \
+    chown -R appuser:appgroup /app
 
 # Copy installed Python packages from builder
 COPY --from=builder /root/.local /home/appuser/.local
