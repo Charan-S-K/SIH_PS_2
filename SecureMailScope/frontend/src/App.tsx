@@ -17,6 +17,7 @@ import { MlDatasetModal } from './components/MlDatasetModal';
 import { MlRiskClassifierModal } from './components/MlRiskClassifierModal';
 import { TlsAnomalyModal } from './components/TlsAnomalyModal';
 import { SyntheticAnomalyModal } from './components/SyntheticAnomalyModal';
+import { PrioritizationModal } from './components/PrioritizationModal';
 import {
   checkLiveness,
   checkReadiness,
@@ -27,7 +28,7 @@ import {
   InfoResponse,
   AnalysisJob
 } from './services/api';
-import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert, Zap } from 'lucide-react';
+import { ShieldCheck, Layers, GitBranch, HardDrive, Database, Brain, ShieldAlert, Zap, ListOrdered } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -48,6 +49,7 @@ export const App: React.FC = () => {
   const [isMlClassifierOpen, setIsMlClassifierOpen] = useState<boolean>(false);
   const [isTlsAnomalyOpen, setIsTlsAnomalyOpen] = useState<boolean>(false);
   const [isSyntheticAnomalyOpen, setIsSyntheticAnomalyOpen] = useState<boolean>(false);
+  const [isPrioritizationOpen, setIsPrioritizationOpen] = useState<boolean>(false);
   const [targetStreamId, setTargetStreamId] = useState<number | undefined>(undefined);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +141,13 @@ export const App: React.FC = () => {
             >
               <Zap className="w-4 h-4 text-amber-200" />
               <span>Synthetic Anomaly Injector</span>
+            </button>
+            <button
+              onClick={() => setIsPrioritizationOpen(true)}
+              className="flex items-center space-x-2 bg-[#d97706] hover:bg-[#b45309] text-white font-medium text-xs px-4 py-2 rounded-xl transition shadow-lg shadow-amber-700/20 border border-amber-600/30"
+            >
+              <ListOrdered className="w-4 h-4 text-amber-200" />
+              <span>Prioritization Engine</span>
             </button>
           </div>
         </div>
@@ -376,6 +385,12 @@ export const App: React.FC = () => {
         <SyntheticAnomalyModal
           isOpen={isSyntheticAnomalyOpen}
           onClose={() => setIsSyntheticAnomalyOpen(false)}
+        />
+
+        {/* Stage 18: Prioritization & Explainability Engine Modal */}
+        <PrioritizationModal
+          isOpen={isPrioritizationOpen}
+          onClose={() => setIsPrioritizationOpen(false)}
         />
       </main>
 

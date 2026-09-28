@@ -1749,6 +1749,90 @@ export async function evaluateSyntheticInjection(
   }
 }
 
+/* ============================================================================
+   Stage 18: Prioritization & Explainability Engine API Services
+   ============================================================================ */
+
+export interface FindingPrioritizationItem {
+  id: string;
+  job_id: string;
+  finding_id?: string;
+  tcp_stream?: number;
+  priority_score: number;
+  priority_level: string;
+  rank: number;
+  severity_score: number;
+  confidence_score: number;
+  exposure_score: number;
+  affected_score: number;
+  ml_risk_score: number;
+  explanation_summary: string;
+  factor_breakdown_json: Record<string, any>;
+  feature_attributions_json?: Record<string, any>;
+  created_at: string;
+}
+
+export interface JobPrioritizationSummaryItem {
+  id: string;
+  job_id: string;
+  total_findings_evaluated: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  weights_config_json: Record<string, any>;
+  rankings: FindingPrioritizationItem[];
+  created_at: string;
+}
+
+export async function calculateJobPrioritization(
+  jobId: string,
+  weights?: {
+    weight_severity?: number;
+    weight_confidence?: number;
+    weight_exposure?: number;
+    weight_affected?: number;
+    weight_ml?: number;
+  }
+): Promise<{ data: JobPrioritizationSummaryItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/prioritization/calculate/${jobId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ weights }),
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Prioritization calculation failed` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Prioritization calculation failed' };
+  }
+}
+
+export async function getJobPrioritizationSummary(
+  jobId: string
+): Promise<{ data: JobPrioritizationSummaryItem | null; error: string | null }> {
+  try {
+    const res = await fetch(`${API_BASE}/prioritization/job/${jobId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      return { data: null, error: errBody.detail || `HTTP ${res.status}: Failed to fetch prioritization summary` };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err: any) {
+    return { data: null, error: err.message || 'Failed to fetch prioritization summary' };
+  }
+}
+
 
 
 

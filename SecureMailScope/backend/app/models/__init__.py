@@ -18,6 +18,7 @@ from app.models.ml_feature_pipeline import MlFeatureSet
 from app.models.ml_model import MlTrainedModel, MlPredictionResult
 from app.models.tls_anomaly import TlsAnomalyDetectorModel, TlsAnomalyResult
 from app.models.synthetic_anomaly import SyntheticAnomalyBatch, SyntheticAnomalyEvaluation
+from app.models.prioritization import FindingPrioritization, JobPrioritizationSummary
 
 __all__ = [
     "Base",
@@ -43,6 +44,8 @@ __all__ = [
     "TlsAnomalyResult",
     "SyntheticAnomalyBatch",
     "SyntheticAnomalyEvaluation",
+    "FindingPrioritization",
+    "JobPrioritizationSummary",
 ]
 
 
