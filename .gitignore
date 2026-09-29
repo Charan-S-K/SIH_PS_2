@@ -1,6 +1,9 @@
-# SecureMailScope local Antigravity state
-ANTIGRAVITY/03_Stage_Check_Report.txt
-ANTIGRAVITY/PROJECT_STATE.md
+# SecureMailScope local Antigravity state & reports
+ANTIGRAVITY/
+FINAL_REAL_RUNTIME_VALIDATION.md
+FINAL_SYSTEM_ACCEPTANCE_REPORT.md
+*REAL_RUNTIME_VALIDATION*.md
+*SYSTEM_ACCEPTANCE_REPORT*.md
 
 # Python
 __pycache__/
