@@ -12,6 +12,7 @@ from app.api.v1.synthetic_anomaly import router as synthetic_anomaly_router
 from app.api.v1.prioritization import router as prioritization_router
 from app.api.v1.recommendation import router as recommendation_router
 from app.api.v1.reports import router as reports_router
+from app.api.v1.pcap_suite import router as pcap_suite_router
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(health_router, prefix="/health", tags=["Health & Status"])
@@ -26,3 +27,4 @@ api_v1_router.include_router(synthetic_anomaly_router)
 api_v1_router.include_router(prioritization_router)
 api_v1_router.include_router(recommendation_router)
 api_v1_router.include_router(reports_router)
+api_v1_router.include_router(pcap_suite_router)
