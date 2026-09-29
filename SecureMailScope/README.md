@@ -1,6 +1,6 @@
 # SecureMailScope
 
-**AI-Assisted Cryptographic Security Posture Assessment for Secure Email Communications**
+**AI-Assisted Cryptographic Security Posture Assessment for Secure Email Communications**  
 *Smart India Hackathon 2024 / Problem Statement SIH26159*
 
 ---
@@ -16,20 +16,91 @@ Observed Facts → Forensic Rules → Verifiable Evidence → ML Risk Scoring �
 ```
 
 - **Passive & Non-Intrusive**: Analyzes captured network traffic (PCAP/PCAPNG) without interacting with live email servers.
-- **Evidence-First**: Every finding links to precise packet frames, TCP streams, protocol commands, and TLS handshake fields.
+- **Evidence-First**: Every finding links to precise packet frames, TCP streams, protocol commands, TLS handshake fields, and X.509 certificates.
 - **No Fabricated Facts**: Strict adherence to ground truth. When evidence is incomplete, findings explicitly record `UNKNOWN` / `INSUFFICIENT_EVIDENCE`.
-- **100% Free & Locally Deployable**: Built entirely on open-source tools without proprietary cloud dependencies.
+- **100% Free & Air-Gapped Deployable**: Built entirely on open-source tools (TShark/PyShark, Scikit-Learn, FastAPI, React/Vite, PostgreSQL) without proprietary cloud dependencies.
 
 ---
 
-## Stage 00 — Foundation Structure
+## Platform Features & Stage Pipeline
 
-This stage delivers the foundation for all 28 development stages:
+- **PCAP Ingestion & Processing**: SHA-256 file hashing, safe validation, stream parsing, and metadata indexing.
+- **Protocol Identification & Flow Reconstruction**: Signature-based SMTP/IMAP/POP3 detection and bidirectional TCP conversation stream assembly.
+- **STARTTLS & TLS Forensics**: STARTTLS upgrade state machine, TLS 1.2/1.3 Hello handshake parsing, cipher suite analysis, and X.509 certificate chain validation.
+- **Cryptographic Rules Engine**: YAML-configured security rules producing severity, confidence, evidence links, and remediation.
+- **Unified Security Findings**: Correlated finding matrix with deduplication and evidence chain explorer.
+- **Explainable Security Posture Aggregation**: Low/Medium/High/Critical posture scoring ($0-100$) with contributing deduction rationales.
+- **Machine Learning Suite**: Synthetic dataset generator, Random Forest risk classifier, Isolation Forest unsupervised TLS anomaly detector, and synthetic mutation evaluator.
+- **Risk Prioritization & Remediation Engine**: Risk Priority Score ($S_{priority} \in [0, 100]$), SHAP feature attributions, and deterministic Postfix/Dovecot/OpenSSL hardening action catalog.
+- **Security Dashboard & Evidence Explorer**: Tabbed React dashboard overview, interactive evidence chain graph, and direct module launcher matrix.
+- **Database Persistence & Restart Recovery**: State transition validation, PostgreSQL schema hardening, and automated service restart job recovery.
+- **Dockerization & Deployment Packaging**: Reproducible Docker Compose stack, automated deployment scripts (`startup.sh`, `healthcheck.sh`, `verify_offline_deployment.sh`), and demo data fixtures.
 
-- **Backend**: FastAPI with async health & readiness probes, Pydantic v2 configuration, CORS middleware, and SQLAlchemy PostgreSQL session management.
-- **Frontend**: React + Vite + Tailwind CSS dashboard displaying live backend liveness, response latency, and database readiness.
-- **Docker Compose**: Orchestration skeleton connecting PostgreSQL 16 Alpine, FastAPI Backend, and Nginx-served Frontend with container healthchecks.
-- **Automated Tests**: Pytest suite covering configuration parsing, health liveness, readiness degradations, database timeouts, and CORS preflight.
+---
+
+## Automated Deployment Scripts
+
+Located in `scripts/`:
+
+- `scripts/startup.sh`: One-command automated deployment script. Verifies Docker runtime, initializes `.env`, launches container stack, and waits for health probes.
+- `scripts/healthcheck.sh`: Probes backend liveness (`/health`), database readiness (`/ready`), system info (`/info`), and frontend server.
+- `scripts/verify_offline_deployment.sh`: Audits source code for cloud API dependencies and verifies air-gapped offline compatibility.
+
+---
+
+## Quickstart Guide
+
+### Option 1: Automated One-Command Startup (Recommended)
+
+```bash
+cd SecureMailScope
+./scripts/startup.sh
+```
+
+### Option 2: Docker Compose
+
+```bash
+cd SecureMailScope
+cp .env.example .env
+docker compose up -d --build
+```
+
+Access services:
+- **Frontend Security Dashboard**: [http://localhost:3000](http://localhost:3000) or [http://localhost:5173](http://localhost:5173)
+- **Backend API & Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Health Probe**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
+- **Database Readiness Probe**: [http://localhost:8000/api/v1/health/ready](http://localhost:8000/api/v1/health/ready)
+
+### Option 3: System Health Check
+
+```bash
+./scripts/healthcheck.sh
+```
+
+---
+
+## Demo Data & Offline Testing
+
+Sample fixtures are provided in `demo_data/`:
+
+- `demo_data/sample_email_capture.pcap`: Sample PCAP capture containing email protocol streams.
+- `demo_data/synthetic_anomaly_sample.json`: Pre-generated synthetic mutation dataset sample.
+
+To upload demo capture via API:
+```bash
+curl -X POST "http://localhost:8000/api/v1/pcap/upload" \
+  -F "file=@demo_data/sample_email_capture.pcap"
+```
+
+---
+
+## Running Backend Test Suite
+
+```bash
+cd SecureMailScope/backend
+source .venv/bin/activate
+pytest tests -vv
+```
 
 ---
 
@@ -39,80 +110,27 @@ This stage delivers the foundation for all 28 development stages:
 SecureMailScope/
 ├── backend/
 │   ├── app/
-│   │   ├── api/v1/
-│   │   │   └── health.py        # Liveness (/health), readiness (/ready), and info (/info)
-│   │   ├── models/
-│   │   │   └── base.py          # SQLAlchemy base & TimestampMixin
-│   │   ├── config.py            # Pydantic Settings & environment variables
-│   │   ├── database.py          # SQLAlchemy engine, session maker, and health probe
-│   │   └── main.py              # FastAPI app lifecycle, CORS, routing
-│   ├── tests/
-│   │   ├── conftest.py          # TestClient fixtures and in-memory test DB
-│   │   ├── test_config.py       # Configuration and CORS parsing tests
-│   │   ├── test_database.py     # Base model and connection timeout tests
-│   │   └── test_health.py       # Health probes & error handling tests
+│   │   ├── api/v1/          # REST API endpoints (health, pcap, jobs, ml, prioritization, recommendations, reports)
+│   │   ├── models/          # SQLAlchemy database models (jobs, packets, sessions, findings, ML, reports)
+│   │   ├── schemas/         # Pydantic v2 schemas
+│   │   ├── services/        # Forensic analyzer engines & persistence service
+│   │   ├── config.py        # Settings & environment configuration
+│   │   ├── database.py      # SQLAlchemy engine & session management
+│   │   └── main.py          # FastAPI application & lifecycle recovery
+│   ├── tests/               # Pytest suite (150+ unit/integration tests)
 │   ├── requirements.txt
-│   ├── requirements-dev.txt
 │   └── Dockerfile
 ├── frontend/
 │   ├── src/
-│   │   ├── components/          # Navbar, HealthCard
-│   │   ├── services/api.ts      # Typed API client for backend health probes
-│   │   ├── App.tsx              # Main dashboard view
-│   │   ├── index.css            # Tailwind styling
-│   │   └── main.tsx             # React entry point
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tailwind.config.js
+│   │   ├── components/      # React components (DashboardView, EvidenceExplorerModal, Modals)
+│   │   ├── services/api.ts  # Typed API client
+│   │   ├── App.tsx          # Main application view
+│   │   └── main.tsx         # React entry point
 │   ├── nginx.conf
 │   └── Dockerfile
-├── docker-compose.yml           # Multi-service stack (db, backend, frontend)
-├── .env.example                 # Configuration template
+├── demo_data/               # Sample PCAP fixtures & synthetic datasets
+├── scripts/                 # Deployment automation scripts (startup.sh, healthcheck.sh, verify_offline_deployment.sh)
+├── docker-compose.yml       # Production container stack (db, backend, frontend)
+├── .env.example             # Environment variable template
 └── README.md
-```
-
----
-
-## Quickstart
-
-### Option 1: Docker Compose (Recommended)
-
-```bash
-cd SecureMailScope
-cp .env.example .env
-docker compose up -d --build
-```
-
-Access the services:
-- **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000) or [http://localhost:5173](http://localhost:5173)
-- **Backend API**: [http://localhost:8000](http://localhost:8000)
-- **Interactive Swagger Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Liveness Probe**: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
-- **Readiness Probe**: [http://localhost:8000/api/v1/health/ready](http://localhost:8000/api/v1/health/ready)
-
-### Option 2: Local Bare-Metal Development
-
-#### 1. Backend Setup
-```bash
-cd SecureMailScope/backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements-dev.txt
-
-# Run backend
-uvicorn app.main:app --reload --port 8000
-```
-
-#### 2. Frontend Setup
-```bash
-cd SecureMailScope/frontend
-npm install
-npm run dev
-```
-
-#### 3. Running Backend Tests
-```bash
-cd SecureMailScope/backend
-source .venv/bin/activate
-pytest -v --cov=app
 ```
