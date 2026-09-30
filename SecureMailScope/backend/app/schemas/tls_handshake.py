@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 07: TLS Handshake Analysis.
+Pydantic schemas for TLS Handshake Analysis.
 """
 
 from datetime import datetime

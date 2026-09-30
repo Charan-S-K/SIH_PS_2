@@ -21,7 +21,7 @@ class AnalysisJob(Base, TimestampMixin):
     error_message = Column(Text, nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
-    # Forensic capture statistics (Stage 02)
+    # Forensic capture statistics 
     total_packets = Column(Integer, default=0, nullable=False)
     tcp_packets = Column(Integer, default=0, nullable=False)
     udp_packets = Column(Integer, default=0, nullable=False)

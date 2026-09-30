@@ -1,5 +1,5 @@
 """
-Tests for Stage 04: TCP Session Reconstruction.
+Tests for TCP Session Reconstruction.
 Verifies bidirectional TCP reassembly, out-of-order handling,
 retransmission/duplicate filtering, sequence gap detection,
 session lifecycle state tracking, conversation turns generation,

@@ -1,5 +1,5 @@
 """
-SQLAlchemy Model for Stage 15: ML Risk Classifier.
+SQLAlchemy Model for ML Risk Classifier.
 Stores trained Random Forest ML model versions, evaluation metrics (precision, recall, F1, confusion matrix),
 feature importances, and inference prediction logs.
 """

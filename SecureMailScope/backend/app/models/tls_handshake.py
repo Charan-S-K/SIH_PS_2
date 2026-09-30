@@ -1,5 +1,5 @@
 """
-SQLAlchemy model for Stage 07: TLS Handshake Analysis.
+SQLAlchemy model for TLS Handshake Analysis.
 Stores parsed TLS handshake parameters, negotiated cryptographic parameters,
 extensions, and forensic message timeline.
 """

@@ -1,5 +1,5 @@
 """
-Tests for Stage 03: Protocol Identification.
+Tests for Protocol Identification.
 Verifies identification of SMTP, IMAP, and POP3 using behavioral signatures,
 conversational flow, and TLS inspection—not ports alone.
 Includes positive tests (standard & non-standard ports, direct TLS),

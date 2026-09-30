@@ -1,5 +1,5 @@
 """
-Tests for Stage 05: Email Protocol Analysis.
+Tests for Email Protocol Analysis.
 Verifies deep session analysis for SMTP, IMAP, and POP3 protocols,
 including command/response tracking, capability extraction,
 STARTTLS/STLS detection, authentication parsing with credential redaction,

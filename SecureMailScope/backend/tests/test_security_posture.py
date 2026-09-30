@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 12: Security Posture Engine.
+Unit and Integration Tests for Security Posture Engine.
 Verifies explainable score calculation, severity deductions with confidence weighting,
 critical vulnerability score capping guardrails, per-server aggregation, and REST API endpoints.
 """

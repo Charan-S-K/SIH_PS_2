@@ -1,5 +1,5 @@
 """
-SQLAlchemy models for Stage 18: Prioritization & Explainability Engine.
+SQLAlchemy models for Prioritization & Explainability Engine.
 Stores transparent evidence-backed risk priority scores, weights configurations,
 and SHAP / feature attribution explainability metadata for findings and jobs.
 """

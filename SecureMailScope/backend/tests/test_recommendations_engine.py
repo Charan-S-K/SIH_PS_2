@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 19: Recommendations Engine.
+Unit and Integration Tests for Recommendations Engine.
 Verifies deterministic remediation recommendations generation, step-by-step configuration snippets,
 affected components, compliance mappings, and REST API endpoints.
 """

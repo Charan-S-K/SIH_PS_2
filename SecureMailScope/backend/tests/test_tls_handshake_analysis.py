@@ -1,5 +1,5 @@
 """
-Tests for Stage 07: TLS Handshake Analysis.
+Tests for TLS Handshake Analysis.
 Verifies observable TLS Handshake reconstruction, negotiated version and
 cipher suite extraction, extension dissection (SNI, ALPN, groups, sig algorithms),
 TLS alert detection, direct vs STARTTLS categorization, and RESTful APIs.

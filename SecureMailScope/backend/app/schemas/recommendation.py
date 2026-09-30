@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 19: Recommendations Engine.
+Pydantic Schemas for Recommendations Engine.
 Defines schemas for deterministic remediation recommendations, affected components,
 configuration snippets, and job summary outputs.
 """

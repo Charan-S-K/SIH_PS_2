@@ -1,5 +1,5 @@
 """
-Tests for Stage 02: PCAP Processing, frame metadata extraction, protocol detection, and corruption handling.
+Tests for PCAP Processing, frame metadata extraction, protocol detection, and corruption handling.
 """
 
 import io

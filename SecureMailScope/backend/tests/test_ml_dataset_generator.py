@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 13: ML Dataset Generator.
+Unit and Integration Tests for ML Dataset Generator.
 Verifies seed determinism, ground truth security labeling, feature vector standardization,
 label rationales, and REST API endpoints.
 """

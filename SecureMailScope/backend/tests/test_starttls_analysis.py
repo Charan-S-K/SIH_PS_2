@@ -1,5 +1,5 @@
 """
-Tests for Stage 06: STARTTLS Analysis.
+Tests for STARTTLS Analysis.
 Verifies opportunistic TLS (STARTTLS / STLS) negotiation inspection,
 downgrade and stripping risk detection, suspicious cleartext authentication,
 direct TLS classification, and RESTful API endpoints.

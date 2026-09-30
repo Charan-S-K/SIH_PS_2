@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 16: TLS Anomaly Detection.
+Unit and Integration Tests for TLS Anomaly Detection.
 Verifies unsupervised Isolation Forest model training, threshold calibration,
 raw anomaly score evaluation, non-malice proof disclaimer text, and REST API endpoints.
 """

@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 17: Synthetic Anomaly Injection & Evaluation.
+REST API Endpoints for Synthetic Anomaly Injection & Evaluation.
 Exposes endpoints to inject controlled synthetic anomaly profiles into feature sets
 and evaluate anomaly detector performance metrics (precision, recall, F1, FPR).
 """

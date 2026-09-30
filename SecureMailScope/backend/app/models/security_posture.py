@@ -1,5 +1,5 @@
 """
-SQLAlchemy database model for Stage 12: Security Posture Engine.
+SQLAlchemy database model for Security Posture Engine.
 Stores explainable session-, server-, and job-level security posture scores, risk grades,
 deduction breakdowns, and contributing finding rationales.
 """

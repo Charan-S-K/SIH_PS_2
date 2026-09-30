@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 14: ML Feature Pipeline.
+Pydantic Schemas for ML Feature Pipeline.
 Defines requests, versioned feature schemas, train/test split metadata, and leakage check reports.
 """
 

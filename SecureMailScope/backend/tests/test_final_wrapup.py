@@ -1,5 +1,5 @@
 """
-Final System Verification & Wrap-up Tests (Stage 25).
+Final System Verification & Wrap-up Tests .
 Verifies complete system readiness, stage documentation, air-gapped compliance,
 and full end-to-end integration across all 25 stages of SecureMailScope.
 """
@@ -50,13 +50,12 @@ def test_api_v1_router_endpoints_count():
     assert len(resp.json()) == 8
 
 
-def test_readme_contains_all_stages():
-    """Verifies README.md documents the complete 25-stage pipeline."""
+def test_readme_contains_pipeline_components():
+    """Verifies README.md documents the complete pipeline architecture."""
     readme_path = BASE_DIR / "README.md"
     content = readme_path.read_text(encoding="utf-8")
     
     assert "SecureMailScope" in content
-    assert "Stage 01" in content or "Stage 1" in content
-    assert "Stage 24" in content
-    assert "Stage 25" in content
+    assert "Project Setup" in content or "PCAP Ingestion" in content
+    assert "Test PCAP Suite" in content
     assert "License" in content or "MIT" in content

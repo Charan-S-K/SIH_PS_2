@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 18: Prioritization Engine.
+Pydantic Schemas for Prioritization Engine.
 Defines configurable weights, prioritized findings responses, SHAP feature attributions,
 and job prioritization summary outputs.
 """

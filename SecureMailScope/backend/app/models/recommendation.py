@@ -1,5 +1,5 @@
 """
-SQLAlchemy database model for Stage 19: Recommendations Engine.
+SQLAlchemy database model for Recommendations Engine.
 Stores deterministic remediation recommendations tied to security rules,
 findings, affected components, exact configuration actions, and compliance controls.
 """

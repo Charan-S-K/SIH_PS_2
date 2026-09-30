@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 16: TLS Anomaly Detection.
+Pydantic Schemas for TLS Anomaly Detection.
 Defines model training requests, anomaly score outputs, calibrated thresholds, and non-malice disclaimers.
 """
 
@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 class TlsAnomalyTrainRequest(BaseModel):
     """Request payload to train an unsupervised Isolation Forest anomaly detector."""
-    feature_set_id: str = Field(description="ID of the baseline feature set (Stage 14) to fit normal behavior")
+    feature_set_id: str = Field(description="ID of the baseline feature set  to fit normal behavior")
     version: Optional[str] = Field(default=None, description="Custom version string e.g. iforest-v1.0.0")
     name: Optional[str] = Field(default="TLS Isolation Forest Anomaly Detector", description="Detector name")
     contamination: float = Field(default=0.05, ge=0.01, le=0.2, description="Expected proportion of anomalies in baseline")

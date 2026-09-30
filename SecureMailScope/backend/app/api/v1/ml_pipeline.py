@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 14: ML Feature Pipeline.
+REST API Endpoints for ML Feature Pipeline.
 Exposes versioned feature extraction, feature scaling/preprocessing, train/test split matrices, and leakage checks.
 """
 

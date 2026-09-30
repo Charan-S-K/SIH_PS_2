@@ -1,5 +1,5 @@
 """
-SQLAlchemy database model for Stage 10: Unified Findings Model.
+SQLAlchemy database model for Unified Findings Model.
 Provides a standardized finding schema for all passive forensic analysis artifacts,
 incorporating correlation, deduplication, confidence scoring, evidence traceability, and remediation.
 """

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# SecureMailScope — System Health Probe & Readiness Inspector (Stage 23)
+# SecureMailScope — System Health Probe & Readiness Inspector
 # Probes backend health, readiness, system info, and frontend endpoints.
 # ==============================================================================
 

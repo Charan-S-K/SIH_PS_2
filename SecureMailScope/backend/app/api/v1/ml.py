@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 13: ML Dataset Generator.
+REST API Endpoints for ML Dataset Generator.
 Exposes dataset generation, batch listing, sample record inspection, and CSV/JSON export endpoints.
 """
 

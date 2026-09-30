@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 15: ML Risk Classifier.
+REST API Endpoints for ML Risk Classifier.
 Exposes Random Forest model training, evaluation metrics retrieval (precision, recall, F1, confusion matrix),
 model version listing, and non-override inference prediction endpoints.
 """

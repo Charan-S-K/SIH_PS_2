@@ -1,5 +1,5 @@
 """
-SQLAlchemy models for Stage 17: Synthetic Anomaly Injection & Evaluation.
+SQLAlchemy models for Synthetic Anomaly Injection & Evaluation.
 Tracks synthetic anomaly injection profiles, injected dataset ground truth,
 and evaluation metrics (precision, recall, detection rate, false positive rate).
 """

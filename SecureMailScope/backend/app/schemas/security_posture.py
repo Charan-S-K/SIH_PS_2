@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 12: Security Posture Engine.
+Pydantic schemas for Security Posture Engine.
 Provides request/response schemas for explainable security posture ratings, deduction scoring, and server breakdowns.
 """
 

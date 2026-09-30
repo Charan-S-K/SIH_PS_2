@@ -1,5 +1,5 @@
 """
-SQLAlchemy Model for Stage 16: TLS Anomaly Detection.
+SQLAlchemy Model for TLS Anomaly Detection.
 Stores unsupervised Isolation Forest detector models, calibrated decision thresholds,
 raw anomaly scores, and explicit non-malice proof disclaimers.
 """

@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 09: Cryptographic Rules Engine.
+Pydantic schemas for Cryptographic Rules Engine.
 Defines API request/response contracts for rule definitions, evaluated findings, and summary metrics.
 """
 

@@ -1,5 +1,5 @@
 """
-Evidence Engine Service for Stage 11: Traceability, Evidence Chain & Missing Fact Verification.
+Evidence Engine Service for Traceability, Evidence Chain & Missing Fact Verification.
 Links Finding -> Rule -> TCP Session -> Packet Range -> Observed Protocol/TLS/Certificate Field -> Rule.
 Ensures missing source evidence becomes INSUFFICIENT_EVIDENCE / PARTIAL_EVIDENCE rather than invented facts.
 """

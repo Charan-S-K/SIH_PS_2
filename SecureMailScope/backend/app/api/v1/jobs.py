@@ -703,7 +703,7 @@ def analyze_job_tls_handshakes(job_id: str, db: Session = Depends(get_db)) -> Tl
 
 
 # ---------------------------------------------------------
-# Stage 08: X.509 Certificate Forensic Analysis Endpoints
+# X.509 Certificate Forensic Analysis Endpoints
 # ---------------------------------------------------------
 
 @router.get(
@@ -841,7 +841,7 @@ def analyze_job_certificates(job_id: str, db: Session = Depends(get_db)) -> X509
 
 
 # ---------------------------------------------------------
-# Stage 09: Cryptographic Rules Engine Endpoints
+# Cryptographic Rules Engine Endpoints
 # ---------------------------------------------------------
 
 @router.get(
@@ -923,7 +923,7 @@ def evaluate_job_rules(
 
 
 # ---------------------------------------------------------
-# Stage 10: Unified Findings Model & Correlation Endpoints
+# Unified Findings Model & Correlation Endpoints
 # ---------------------------------------------------------
 
 @router.get(
@@ -1032,7 +1032,7 @@ def get_job_findings_summary(
 
 
 # ---------------------------------------------------------
-# Stage 11: Evidence Engine Endpoints
+# Evidence Engine Endpoints
 # ---------------------------------------------------------
 
 @router.get(
@@ -1102,7 +1102,7 @@ def get_job_evidence_summary(
 
 
 # ---------------------------------------------------------
-# Stage 12: Security Posture Engine Endpoints
+# Security Posture Engine Endpoints
 # ---------------------------------------------------------
 
 @router.get(

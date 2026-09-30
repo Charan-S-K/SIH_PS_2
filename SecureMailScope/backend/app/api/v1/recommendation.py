@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 19: Recommendations Engine.
+REST API Endpoints for Recommendations Engine.
 Exposes endpoints to generate and retrieve deterministic remediation recommendations
 tied to security rules, affected components, configuration snippets, and compliance frameworks.
 """

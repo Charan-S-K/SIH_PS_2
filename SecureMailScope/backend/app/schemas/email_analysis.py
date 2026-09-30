@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 05: Email Protocol Analysis (SMTP, IMAP, POP3).
+Pydantic schemas for Email Protocol Analysis (SMTP, IMAP, POP3).
 """
 
 from datetime import datetime

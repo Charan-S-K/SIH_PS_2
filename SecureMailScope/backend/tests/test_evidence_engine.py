@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 11: Evidence Engine.
+Unit and Integration Tests for Evidence Engine.
 Verifies complete evidence chain construction, missing fact verification without fabrication,
 and REST API endpoints.
 """

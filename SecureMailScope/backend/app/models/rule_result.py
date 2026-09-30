@@ -1,5 +1,5 @@
 """
-SQLAlchemy database model for Stage 09: Cryptographic Rules Engine Findings.
+SQLAlchemy database model for Cryptographic Rules Engine Findings.
 Stores structured security finding rule results evaluated against passive job analysis data.
 """
 

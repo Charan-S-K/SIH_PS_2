@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 16: TLS Anomaly Detection.
+REST API Endpoints for TLS Anomaly Detection.
 Exposes Isolation Forest anomaly detector training, detector listing, details retrieval,
 individual session anomaly evaluation, and job-level batch anomaly analysis.
 """

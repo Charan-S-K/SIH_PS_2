@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 14: ML Feature Pipeline.
+Unit and Integration Tests for ML Feature Pipeline.
 Verifies defensible feature extraction, z-score preprocessing fitted strictly on training data,
 stratified train/test splitting, zero data leakage proof, and REST API endpoints.
 """

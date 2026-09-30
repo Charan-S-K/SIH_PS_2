@@ -1,5 +1,5 @@
 """
-REST API Endpoints for Stage 18: Prioritization & Explainability Engine.
+REST API Endpoints for Prioritization & Explainability Engine.
 Exposes evidence-backed finding & session prioritization ranking endpoints
 with configurable scoring weights and SHAP feature attribution explanations.
 """

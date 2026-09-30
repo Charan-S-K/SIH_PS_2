@@ -1,5 +1,5 @@
 """
-SQLAlchemy Model for Stage 14: ML Feature Pipeline.
+SQLAlchemy Model for ML Feature Pipeline.
 Stores versioned feature extraction definitions, preprocessed feature matrices,
 train/test splits, and data leakage verification reports.
 """

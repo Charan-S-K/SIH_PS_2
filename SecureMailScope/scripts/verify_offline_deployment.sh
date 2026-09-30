@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# SecureMailScope — Air-Gapped / Offline Deployment Verifier (Stage 23)
+# SecureMailScope — Air-Gapped / Offline Deployment Verifier
 # Verifies zero paid cloud dependencies, local storage directories,
 # and offline ML execution capability.
 # ==============================================================================

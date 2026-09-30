@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 10: Unified Findings Model.
+Pydantic schemas for Unified Findings Model.
 Defines API request/response structures for unified findings, correlation summaries, and filtering.
 """
 

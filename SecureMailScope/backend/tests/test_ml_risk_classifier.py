@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 15: ML Risk Classifier.
+Unit and Integration Tests for ML Risk Classifier.
 Verifies Random Forest model training, evaluation metrics (precision, recall, F1, 5x5 confusion matrix),
 model versioning, inference prediction, non-override of deterministic rule facts, and REST API endpoints.
 """

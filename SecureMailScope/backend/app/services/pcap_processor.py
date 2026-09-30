@@ -294,7 +294,7 @@ class PcapProcessor:
             self.db.commit()
             packet_batch.clear()
 
-        # Stage 03: Run Protocol Identification across extracted streams
+        # Run Protocol Identification across extracted streams
         try:
             from app.services.protocol_identifier import ProtocolIdentifier
             proto_identifier = ProtocolIdentifier(self.db)
@@ -304,7 +304,7 @@ class PcapProcessor:
         except Exception as proto_err:
             logger.warning("Protocol identification encountered a non-fatal issue for job %s: %s", job.id, proto_err)
 
-        # Stage 04: Reconstruct TCP Sessions and conversational streams
+        # Reconstruct TCP Sessions and conversational streams
         try:
             from app.services.tcp_reconstructor import TcpReconstructor
             reconstructor = TcpReconstructor(self.db)
@@ -312,7 +312,7 @@ class PcapProcessor:
         except Exception as sess_err:
             logger.warning("TCP Session reconstruction encountered a non-fatal issue for job %s: %s", job.id, sess_err)
 
-        # Stage 05: Analyze Email Protocols (SMTP, IMAP, POP3) state machines & events
+        # Analyze Email Protocols (SMTP, IMAP, POP3) state machines & events
         try:
             from app.services.email_protocol_analyzer import EmailProtocolAnalyzer
             email_analyzer = EmailProtocolAnalyzer(self.db)
@@ -320,7 +320,7 @@ class PcapProcessor:
         except Exception as email_err:
             logger.warning("Email protocol analysis encountered a non-fatal issue for job %s: %s", job.id, email_err)
 
-        # Stage 06: Analyze Opportunistic TLS (STARTTLS / STLS) & Downgrade Risk
+        # Analyze Opportunistic TLS (STARTTLS / STLS) & Downgrade Risk
         try:
             from app.services.starttls_analyzer import StarttlsAnalyzer
             starttls_analyzer = StarttlsAnalyzer(self.db)
@@ -328,7 +328,7 @@ class PcapProcessor:
         except Exception as starttls_err:
             logger.warning("STARTTLS analysis encountered a non-fatal issue for job %s: %s", job.id, starttls_err)
 
-        # Stage 07: Reconstruct and analyze observable TLS Handshakes
+        # Reconstruct and analyze observable TLS Handshakes
         try:
             from app.services.tls_handshake_analyzer import TlsHandshakeAnalyzer
             tls_analyzer = TlsHandshakeAnalyzer(self.db)
@@ -336,7 +336,7 @@ class PcapProcessor:
         except Exception as tls_err:
             logger.warning("TLS handshake analysis encountered a non-fatal issue for job %s: %s", job.id, tls_err)
 
-        # Stage 08: Forensic X.509 Certificate Analysis
+        # Forensic X.509 Certificate Analysis
         try:
             from app.services.x509_analyzer import X509Analyzer
             X509Analyzer.analyze_job_certificates(self.db, job.id)

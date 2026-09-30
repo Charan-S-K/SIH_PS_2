@@ -41,7 +41,7 @@ class Settings(BaseSettings):
         description="Database connection timeout in seconds"
     )
 
-    # PCAP Storage & Upload Limits (Stage 01)
+    # PCAP Storage & Upload Limits 
     UPLOAD_DIR: str = Field(
         default="data/uploads",
         description="Directory for storing uploaded PCAP/PCAPNG files"
@@ -55,7 +55,7 @@ class Settings(BaseSettings):
         description="Allowed file extensions for captures"
     )
 
-    # PCAP Processing & TShark Configuration (Stage 02)
+    # PCAP Processing & TShark Configuration 
     TSHARK_PATH: Optional[str] = Field(
         default=None,
         description="Path to tshark executable (if None, autodetects in PATH)"

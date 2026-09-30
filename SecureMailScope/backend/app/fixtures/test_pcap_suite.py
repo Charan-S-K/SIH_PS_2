@@ -1,5 +1,5 @@
 """
-Curated Test PCAP Suite Definitions & Binary Generators (Stage 24).
+Curated Test PCAP Suite Definitions & Binary Generators .
 Provides 8 deterministic regression scenarios with expected findings, rules, evidence status,
 and posture outcomes for secure, weak, expired, cleartext, truncated, and anomalous email PCAP traffic.
 """

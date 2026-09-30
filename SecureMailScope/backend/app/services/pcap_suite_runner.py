@@ -1,5 +1,5 @@
 """
-Test PCAP Suite Evaluation & Verification Service (Stage 24).
+Test PCAP Suite Evaluation & Verification Service .
 Runs expected-vs-actual validation comparing processing results against curated test PCAP scenarios.
 """
 

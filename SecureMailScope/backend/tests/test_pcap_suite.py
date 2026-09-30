@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 24: Test PCAP Suite & Evaluation Service.
+Unit and Integration Tests for Test PCAP Suite & Evaluation Service.
 """
 
 import pytest

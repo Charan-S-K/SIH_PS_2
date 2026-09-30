@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 10: Unified Findings Model & Correlation Engine.
+Unit and Integration Tests for Unified Findings Model & Correlation Engine.
 """
 
 import pytest

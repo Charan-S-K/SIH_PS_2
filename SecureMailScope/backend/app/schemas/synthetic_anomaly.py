@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 17: Synthetic Anomaly Injection & Evaluation.
+Pydantic Schemas for Synthetic Anomaly Injection & Evaluation.
 Defines injection profiles, request payloads, evaluation metrics, and summary responses.
 """
 
@@ -21,7 +21,7 @@ class SyntheticAnomalyProfile(str, Enum):
 
 class SyntheticAnomalyInjectRequest(BaseModel):
     """Request payload to inject controlled synthetic anomalies into a baseline feature set."""
-    feature_set_id: str = Field(description="Baseline feature set ID (Stage 14)")
+    feature_set_id: str = Field(description="Baseline feature set ID ")
     anomaly_profile: SyntheticAnomalyProfile = Field(
         default=SyntheticAnomalyProfile.DEPRECATED_TLS_SPIKE,
         description="Target synthetic anomaly profile"

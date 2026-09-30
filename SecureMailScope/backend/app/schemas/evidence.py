@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 11: Evidence Engine.
+Pydantic schemas for Evidence Engine.
 Provides structured evidence chain, packet range tracing, and field provenance schemas.
 """
 

@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 15: ML Risk Classifier.
+Pydantic Schemas for ML Risk Classifier.
 Defines model training requests, evaluation metrics, prediction requests, and inference outputs.
 """
 
@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 class MlTrainModelRequest(BaseModel):
     """Request payload to train an explainable ML Risk Classifier."""
-    feature_set_id: str = Field(description="ID of the extracted feature set (Stage 14) to train on")
+    feature_set_id: str = Field(description="ID of the extracted feature set  to train on")
     version: Optional[str] = Field(default=None, description="Custom version identifier e.g. rf-v1.0.0")
     name: Optional[str] = Field(default="Random Forest Email Security Classifier", description="Model display name")
     n_estimators: int = Field(default=100, ge=10, le=500, description="Number of decision trees in Random Forest")

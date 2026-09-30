@@ -1,5 +1,5 @@
 """
-Service for Stage 09: Cryptographic Rules Engine.
+Service for Cryptographic Rules Engine.
 Loads configurable YAML/JSON security rules and evaluates passive forensic evidence
 from TLS handshakes, certificates, STARTTLS analyses, and email protocol sessions.
 """

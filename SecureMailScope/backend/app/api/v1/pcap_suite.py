@@ -1,5 +1,5 @@
 """
-API Router for Test PCAP Suite Endpoints (Stage 24).
+API Router for Test PCAP Suite Endpoints .
 Provides endpoints to list curated scenarios, download scenario PCAP binaries, and evaluate analysis jobs against scenario ground truth.
 """
 

@@ -1,5 +1,5 @@
 """
-SQLAlchemy Model for Stage 13: ML Dataset Generator.
+SQLAlchemy Model for ML Dataset Generator.
 Stores synthetic training and evaluation dataset batches, extracted session features,
 ground truth security labels, and transparent labeling rationales.
 """

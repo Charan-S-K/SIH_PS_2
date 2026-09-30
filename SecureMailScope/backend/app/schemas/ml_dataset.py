@@ -1,5 +1,5 @@
 """
-Pydantic Schemas for Stage 13: ML Dataset Generator.
+Pydantic Schemas for ML Dataset Generator.
 Defines requests, record representations, batch summaries, and CSV/JSON export schemas.
 """
 

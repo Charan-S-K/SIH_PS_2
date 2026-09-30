@@ -1,5 +1,5 @@
 """
-Service for Stage 10: Unified Findings Model & Correlation Engine.
+Service for Unified Findings Model & Correlation Engine.
 Consolidates forensic evidence, cryptographic rule results, certificate flaws, and protocol behavior
 into unified, correlated, and deduplicated finding records.
 """

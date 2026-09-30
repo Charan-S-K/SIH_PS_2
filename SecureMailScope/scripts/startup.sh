@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# SecureMailScope — Automated Deployment Startup Script (Stage 23)
+# SecureMailScope — Automated Deployment Startup Script
 # Initializes environment, checks Docker prerequisites, starts services,
 # and verifies container health probes.
 # ==============================================================================

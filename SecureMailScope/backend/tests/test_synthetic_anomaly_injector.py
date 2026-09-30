@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 17: Synthetic Anomaly Injection & Evaluation.
+Unit and Integration Tests for Synthetic Anomaly Injection & Evaluation.
 Verifies controlled synthetic anomaly injection profiles, ground truth generation,
 Isolation Forest detector evaluation metrics (precision, recall, F1, FPR), and REST APIs.
 """

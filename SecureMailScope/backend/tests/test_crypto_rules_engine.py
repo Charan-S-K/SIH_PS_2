@@ -1,5 +1,5 @@
 """
-Unit and Integration Tests for Stage 09: Cryptographic Rules Engine.
+Unit and Integration Tests for Cryptographic Rules Engine.
 """
 
 from datetime import datetime, timezone, timedelta

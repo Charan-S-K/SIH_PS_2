@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             Base.metadata.create_all(bind=engine)
             logger.info("Database tables initialized successfully.")
             
-            # Stage 21: Auto-recover jobs stuck in PROCESSING / QUEUED from prior server restart
+            # Auto-recover jobs stuck in PROCESSING / QUEUED from prior server restart
             db = SessionLocal()
             try:
                 recovered_count = PersistenceHardeningService.recover_interrupted_jobs(db)

@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Stage 06: STARTTLS Analysis.
+Pydantic schemas for STARTTLS Analysis.
 """
 
 from datetime import datetime
